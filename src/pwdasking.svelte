@@ -13,6 +13,7 @@
   } from "firebase/auth";
 
   //Vars
+  let username;
   let firebase = initializeApp(config);
   let db = getFirestore(firebase);
   const auth = getAuth(firebase);
@@ -61,47 +62,33 @@
         // let name = prompt("One More Question.What is your Name?")
         setDoc(docRef, {
           batch: "",
-          name: user.displayName,
+          name: username,
           coins: 100,
           batches: [],
         });
-        createCookies(user.displayName, user.uid, "");
+        createCookies(username, user.uid, "");
       }
     }
   });
   let scode = "";
-  async function authpwd() {
-    // console.log(scode);
-    // try {
-    //   const response = await fetch("./api/hello", {
-    //     headers: {
-    //       uid: scode,
-    //     },
-    //   });
-    //   if (response.ok) {
-    //     const responseData = await response;
-    //     responseData.text().then((data) => {
-    //       const token = JSON.parse(data);
-    //       console.log(token);
-    //       signInWithCustomToken(auth, token)
-    //         .then((userCredential) => {
-    //           const user = userCredential.user;
-    //           // ...
-    //         })
-    //         .catch((error) => {
-    //           const errorCode = error.code;
-    //           const errorMessage = error.message;
-    //           console.error(error.message)
-    //         });
-    //     });
-    //   } else {
-    //     console.error("Failed to fetch data:", response.status);
-    //   }
-    // } catch (error) {
-    //   console.error("Error fetching data:", error);
-    // }
+  let name: Element;
+  let sub: Element;
+  let signinwithg: Element;
+  async function addName() {
+    if (scode !== "") {
+      name.style.transform = "translatex(-650px)";
+      sub.style.transform = "translatex(-650px)";
+      sub.style.visibility = "hidden";
+      name.style.visibility = "hidden";
+      name.style.opacity = "0";
+      sub.style.opacity = "0";
+      username = scode;
+
+      signinwithg.setAttribute("id", "");
+    }else{
+      alert("Please Enter Your Name")
+    }
   }
-  authpwd()
 </script>
 
 <div class="container-ask" id="askcont">
@@ -121,24 +108,29 @@
       Log<br /> <span class="pwdtext">In</span>
     </h2>
     <div class="cont">
-      <button class="pwd" on:click={signInWithGoogle}
+      <button
+        bind:this={signinwithg}
+        id="invisible"
+        class="pwd logwithg"
+        on:click={signInWithGoogle}
         ><img src="./google.svg" alt="" />Log In with google</button
       >
-      <!-- <span class="or">OR</span>
       <input
+        bind:this={name}
         bind:value={scode}
         type="text"
         class="pwd"
         id="pwd"
-        placeholder="Secret Code"
+        placeholder="Your Name?"
       />
       <input
+        bind:this={sub}
         type="submit"
         value="Submit"
         class="pwd subbtn"
         id="subbtn"
-        on:click={authpwd}
-      /> -->
+        on:click={addName}
+      />
     </div>
     <span class="dhaa"
       >Don't Have an Account, <a href="/#/signin">Create it here</a></span
@@ -147,14 +139,27 @@
 </main>
 
 <style lang="scss">
+  .name {
+    transform: translateX(-650px) !important;
+    visibility: hidden;
+    opacity: 0;
+  }
+  #invisible {
+    visibility: hidden;
+    transform: translateX(250px);
+  }
+  .logwithg {
+    transition: 1s linear all;
+    position: absolute;
+    top: -15%;
+  }
   .cont {
-    width: 100%;
     position: absolute;
     top: 55%;
+    left: 50%;
+    width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 25px;
-    left: 50%;
   }
   .text-ask {
     color: white;
@@ -187,9 +192,6 @@
       0px 0px 10px #fff,
       0px 0px 15px #fff;
     font-family: "Vibur", sans-serif;
-  }
-  #pwd {
-    margin-top: 40px;
   }
   #askcont {
     box-sizing: border-box;
@@ -280,6 +282,7 @@
           0px 0px 112px #00fbff;
       }
       .pwd {
+        transition: 1s linear all;
         font-family: "Vibur";
         font-size: 23px;
         gap: 20px;
