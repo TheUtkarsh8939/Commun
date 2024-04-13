@@ -51,6 +51,7 @@
     document.cookie += `|${batch}`;
     window.location.href = "/#/";
   }
+  signOut(auth)
   onAuthStateChanged(auth, async (user) => {
     if (user && user.providerData[0].providerId === "google.com") {
       console.log(user);

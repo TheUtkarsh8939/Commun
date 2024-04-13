@@ -36,8 +36,13 @@
       price = data.price;
     });
   });
-
+  
   const purchase = () => {
+    let old = localStorage.getItem("batch")
+    if (old == null){
+      old=""
+    }
+    localStorage.setItem("batch",old += svg)
     const docRef = doc(fs, "users", uId)
     let batchArr = userData.batches
     let batch = userData.batch

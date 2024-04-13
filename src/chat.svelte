@@ -134,26 +134,26 @@
       y++;
     }
   }
-  //Loading All the messages on arrival
+  // Loading All the messages on arrival
   let msgRef = collection(db, params.group);
   disableWriting(params.group);
   onSnapshot(msgRef, (snap) => {
     let x = snap.docs.reverse();
-
     x.forEach((doc) => {
       if (username.split("name=")[1] != doc.data().sender) {
         html += `<div class="msg">
-                <span class="sender">${doc.data().sender} ${
-                  doc.data().batch
-                }<br></span>
-                ${doc.data().msg}
-                </div>`;
-      } else {
+          <span class="sender">${doc.data().sender} ${
+            doc.data().batch
+          }<br></span>
+          ${doc.data().msg}
+          </div>`;
+        } else {
+        console.log(doc.data().msg)
         html += `<div class="msg sentbyme">
-                  <span class="sender">${doc.data().sender} ${
-                    doc.data().batch
-                  }<br></span>
-                  ${doc.data().msg}
+          <span class="sender">${doc.data().sender}${doc.data().batch}<br>
+            </span>
+            ${doc.data().msg}
+                
                   </div>`;
       }
       msg.push({ ...doc.data(), id: doc.id });
@@ -230,13 +230,14 @@
       let day = date.getDate();
       let month = date.getMonth() + 1;
       let year = date.getFullYear();
+      let batch = localStorage.getItem("batch")
       // @ts-ignore
       let msgid = 99999999999999 - msgamount;
       await setDoc(doc(db, params.group, `${msgid}`), {
         msg: msgtosend,
         sender: username.split("name=")[1],
         onsent: `${day}-${month}-${year}`,
-        batch: splitedCookie[4],
+        batch: batch,
         type: type,
         durl: durl,
       });
