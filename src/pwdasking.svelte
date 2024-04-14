@@ -49,6 +49,8 @@
     document.cookie += `|name=${name}`;
     document.cookie += `|id=${pass}`;
     document.cookie += `|${batch}`;
+
+    localStorage.setItem("batch", batch);
     window.location.href = "/#/";
   }
   signOut(auth)

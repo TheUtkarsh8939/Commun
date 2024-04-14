@@ -1,6 +1,6 @@
 {
-    "name": "Best Friends Forever",
-    "short_name": "Best Friends Forever",
+    "name": "Sparshak",
+    "short_name": "Sparshak",
     "start_url": "/",
     "icons": [
       {
@@ -454,6 +454,6 @@
     ],
     "theme_color": "#000000",
     "background_color": "#000000",
-    "display": "standalone",
+    "display": "fullscreen",
     "orientation": "portrait"
 }
