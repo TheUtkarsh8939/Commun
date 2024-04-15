@@ -1,5 +1,6 @@
 <script lang="ts">
   // Importing Important Components
+  // import {blur} from 'svelte/transition'
   export let params;
   import Link from "./lib/link.svelte";
   import Header from "./lib/header.svelte";
@@ -25,6 +26,10 @@
   } from "firebase/storage";
   import Ann from "./lib/ann.svelte";
   import { getMessaging, getToken } from "firebase/messaging";
+  import {getAuth, onAuthStateChanged} from "firebase/auth";
+  import { sineIn } from 'svelte/easing';
+  import { onMount } from "svelte";
+  import NotOpenedAGroup from "$lib/notOpenedAGroup.svelte";
 
   // Declaring Important Variables
   let istgjn = false
@@ -77,40 +82,45 @@
       img.setAttribute("src", url);
     });
   }
+  
   //Function to Retrieve All the Groups from the database
   async function findGroups() {
     let groupRef = doc(db, "metadata", "groups");
-    const groupSnap = await getDoc(groupRef);
-    if (groupSnap.exists()) {
-      let data = groupSnap.data();
-      let count_for_showing_images = 0;
-      let newdata = [];
-      for (const key in data) {
-        if (data[key].members.includes(splitedCookie[3].split("id=")[1])) {
-          newdata.push(data[key]);
-          document.getElementById("sidenav").innerHTML += `
-        <a class="group bg-slate-800" href="#/chat/${data[key].name}">
-          <img src="" id="logo${count_for_showing_images}" class="groupicon" alt="" />
-          <span class="groupname">${data[key].pname}</span>
-          </a>
-          `;
-          getLogo(data[key].logo, count_for_showing_images);
-          count_for_showing_images++;
+    onSnapshot(groupRef, async groupSnap => {
+      if (groupSnap.exists()) {
+        let data = groupSnap.data();
+        let count_for_showing_images = 0;
+        let newdata = [];
+        for (const key in data) {
+          if (data[key].members.includes(splitedCookie[3].split("id=")[1])) {
+            newdata.push(data[key]);
+            document.getElementById("sidenav").innerHTML += `
+            <a class="group bg-slate-800" href="#/chat/${data[key].name}">
+              <img src="" id="logo${count_for_showing_images}" class="groupicon" alt="" />
+            <span class="groupname">${data[key].pname}</span>
+            </a>
+            `;
+            getLogo(data[key].logo, count_for_showing_images);
+            count_for_showing_images++;
+          }
         }
+        groups = newdata;
+      } else {
+        alert(
+          "Critical Internal Server File Deleted(Internal Server Error)" + 500
+        );
+        throw (
+          "Critical Internal Server File Deleted(Internal Server Error)" + 500
+        );
       }
-      groups = newdata;
-    } else {
-      alert(
-        "Critical Internal Server File Deleted(Internal Server Error)" + 500
-      );
-      throw (
-        "Critical Internal Server File Deleted(Internal Server Error)" + 500
-      );
-    }
+    })
+    // const groupSnap = await getDoc(groupRef);
   }
-  findGroups();
+  onMount(()=> {
+    findGroups();
+  })
   //Saving announcements
-
+  
   //Function to Disable Input bar
   async function disableWriting(grp: Array<any>) {
     let x = grp.length;
@@ -135,7 +145,8 @@
     }
   }
   // Loading All the messages on arrival
-  let msgRef = collection(db, params.group);
+    if (params.group !== "tut"){
+      let msgRef = collection(db, params.group);
   disableWriting(params.group);
   onSnapshot(msgRef, (snap) => {
     let x = snap.docs.reverse();
@@ -148,88 +159,89 @@
           ${doc.data().msg}
           </div>`;
         } else {
-        console.log(doc.data().msg)
+          console.log(doc.data().msg)
         html += `<div class="msg sentbyme">
           <span class="sender">${doc.data().sender}${doc.data().batch}<br>
             </span>
             ${doc.data().msg}
-                
-                  </div>`;
-      }
-      msg.push({ ...doc.data(), id: doc.id });
-    });
-    msgamount = msg.length;
-    document.getElementById("seamsg").innerHTML = html;
-    html = "";
-    msg = [];
-    var elem = document.getElementById("seamsg");
-    elem.scrollTo(0, elem.scrollHeight);
-  });
-  //Adding logic to open button and Change group
-  if (params != undefined) {
-    let oldGroup = params.group;
-    setInterval(() => {
-      if (params.group != oldGroup) {
+            
+            </div>`;
+          }
+          msg.push({ ...doc.data(), id: doc.id });
+        });
+        msgamount = msg.length;
+        document.getElementById("seamsg").innerHTML = html;
+        html = "";
         msg = [];
-        let colRef = collection(db, params.group);
-        onSnapshot(colRef, (snap) => {
-          let x = snap.docs.reverse();
-          x.forEach((doc) => {
-            if (username.split("name=")[1] != doc.data().sender) {
-              html += `<div class="msg">
-                <span class="sender">${doc.data().sender} ${
-                  doc.data().batch
-                }<br></span>
+        var elem = document.getElementById("seamsg");
+        elem.scrollTo(0, elem.scrollHeight);
+      });
+    }
+      //Adding logic to open button and Change group
+      if (params != undefined) {
+        let oldGroup = params.group;
+        setInterval(() => {
+          if (params.group != oldGroup) {
+            msg = [];
+            let colRef = collection(db, params.group);
+            onSnapshot(colRef, (snap) => {
+              let x = snap.docs.reverse();
+              x.forEach((doc) => {
+                if (username.split("name=")[1] != doc.data().sender) {
+                  html += `<div class="msg">
+                    <span class="sender">${doc.data().sender} ${
+                      doc.data().batch
+                    }<br></span>
                 ${doc.data().msg}
                 </div>`;
-            } else {
-              html += `<div class="msg sentbyme">
+              } else {
+                html += `<div class="msg sentbyme">
                   <span class="sender">${doc.data().sender} ${
                     doc.data().batch
                   }<br></span>
                   ${doc.data().msg}
                   </div>`;
-            }
-            msg.push({ ...doc.data(), id: doc.id });
-          });
-          msgamount = msg.length;
-          document.getElementById("seamsg").innerHTML = html;
-          html = "";
-
-          msg = [];
-          var elem = document.getElementById("seamsg");
-          elem.scrollTo(0, elem.scrollHeight);
-        });
+                }
+                msg.push({ ...doc.data(), id: doc.id });
+              });
+              msgamount = msg.length;
+              document.getElementById("seamsg").innerHTML = html;
+              html = "";
+              
+              msg = [];
+              var elem = document.getElementById("seamsg");
+              elem.scrollTo(0, elem.scrollHeight);
+            });
+          }
+          disableWriting(params.group);
+          oldGroup = params.group;
+        }, 100);
       }
-      disableWriting(params.group);
-      oldGroup = params.group;
-    }, 100);
-  }
-  setInterval(() => {
-    if (isOpen != oldIsOpen) {
-      if (isOpen) {
-        document.getElementById("sidenav").style.transform = "scaleX(1)";
-      } else {
-        document.getElementById("sidenav").style.transform = "scaleX(0)";
-        document.getElementById("areaformsg").style.width = "100%";
+      setInterval(() => {
+        if (isOpen != oldIsOpen) {
+          if (isOpen) {
+            document.getElementById("sidenav").style.transform = "scaleX(1)";
+          } else {
+            document.getElementById("sidenav").style.transform = "scaleX(0)";
+            document.getElementById("areaformsg").style.width = "100%";
+          }
+          oldIsOpen = isOpen;
+        }
+      }, 100);
+      //Fuction to send messages
+      async function sendmsg() {
+        //@ts-ignore
+        
+        let msgtosend = document.getElementById("msg").value;
+        sendmsgwtype("Text", "", msgtosend);
       }
-      oldIsOpen = isOpen;
-    }
-  }, 100);
-  //Fuction to send messages
-  async function sendmsg() {
-    //@ts-ignore
-
-    let msgtosend = document.getElementById("msg").value;
-    sendmsgwtype("Text", "", msgtosend);
-  }
-  async function sendmsgwtype(type, durl, msgtosend) {
-    if (msgtosend != "") {
-      const date = new Date();
-
-      let day = date.getDate();
-      let month = date.getMonth() + 1;
-      let year = date.getFullYear();
+      async function sendmsgwtype(type, durl, msgtosend) {
+        if (msgtosend != "") {
+          const date = new Date();
+          
+          let day = date.getDate();
+          let month = date.getMonth() + 1;
+          let year = date.getFullYear();
       let batch = localStorage.getItem("batch")
       // @ts-ignore
       let msgid = 99999999999999 - msgamount;
@@ -242,7 +254,7 @@
         durl: durl,
       });
       //@ts-ignore
-
+      
       document.getElementById("msg").value = "";
     }
   }
@@ -267,7 +279,7 @@
     if (issendcontopen === false) {
       document.getElementById("sendovr").style.visibility = "hidden";
       document.getElementById("sendovr").style.transform = "scale(0)";
-
+      
       issendcontopen = true;
     } else {
       document.getElementById("sendovr").style.visibility = "visible";
@@ -312,11 +324,11 @@
         (error) => {
           alert(
             "An error Occured while uploading: " +
-              error.message +
-              "With code of" +
-              error.code +
-              "Caused by " +
-              error.cause
+            error.message +
+            "With code of" +
+            error.code +
+            "Caused by " +
+            error.cause
           );
         },
         () => {
@@ -334,7 +346,7 @@
       alert("A major error has occurd. Please inform the developer of the app");
     }
   };
-
+  
   //Open Join group
   function tgjn() {
     istgjn = !istgjn;
@@ -343,7 +355,13 @@
     // Optionally alert the current value
     alert(istgjn);
   }
-
+  
+//Redirect if user ain't logged in
+  onAuthStateChanged(getAuth(),(usr) => {
+    if (!usr){
+      window.location.href = "/#/AskPwd"
+    }
+  })
 </script>
 
 
@@ -463,7 +481,7 @@
 </div>
 
 <Header />
-<chatwindows style="display: flex;">
+<chatwindows style="display: flex;" >
   <div class="linkcont" id="linkcont">
     <div class="row" id="r1">
       <div
@@ -568,7 +586,8 @@
   </div>
   <div class="areaformsg" id="areaformsg">
     <div class="seamsg" id="seamsg">
-      <div class="msg"><span class="sender">ChatBot <br /></span>Welcome</div>
+      <NotOpenedAGroup/>
+      <div class="msg" style="display:none"><span class="sender">ChatBot <br /></span>Welcome</div>
     </div>
     <div class="msgarea bg-slate-950">
       <input type="text" class="typemsg" id="msg" />

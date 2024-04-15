@@ -1,4 +1,5 @@
 <script lang="ts">
+  import {draw} from "svelte/transition"
   import { initializeApp } from "firebase/app";
   import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
   import { config } from "./../fbaseconfig";
@@ -23,7 +24,9 @@
         mem.push(splitedCookie[3].split("id=")[1]);
         temp = docSnap.data();
         Object.assign(temp[gname].members, mem);
-        await setDoc(refofmetadata, temp);
+        await setDoc(refofmetadata, temp).then(() =>{
+          window.location.href = "#/"
+        });
       } else {
         alert("Group does not exist");
       }
@@ -182,7 +185,7 @@
   </div>
   <header>
     <nav>
-      <a href="#/"><img class="brand-heading" src="logo.png" alt="" /></a>
+      <a href="#/" class="flex items-center h-[100%]"><img class="brand-heading" src="logo.png" alt="" /></a>
       <div class="opdiv">
         {#if isvisbile}
           <button
@@ -418,9 +421,10 @@
     align-items: center;
     height: calc(100% - 2px);
     .brand-heading {
-      margin-left: 0px;
+      margin-top: 10px;
+      margin-left: 5px;
       transform: translateY(-10px);
-      height: 120px;
+      height: 90px;
     }
     .opdiv {
       display: flex;

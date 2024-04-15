@@ -3,6 +3,7 @@
   import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
   import { initializeApp } from "firebase/app";
   import { config } from "./fbaseconfig";
+  import { blur } from 'svelte/transition';
   import {
     onAuthStateChanged,
     getAuth,
@@ -11,6 +12,7 @@
     signOut,
     signInWithCustomToken,
   } from "firebase/auth";
+  import { quintIn, sineIn } from "svelte/easing";
 
   //Vars
   let username;
@@ -92,6 +94,7 @@
       alert("Please Enter Your Name")
     }
   }
+
 </script>
 
 <div class="container-ask" id="askcont">
@@ -105,7 +108,7 @@
   </div>
 </div>
 <Header />
-<main>
+<main in:blur="{{duration: 800, easing:sineIn}}">
   <div class="pwdbox">
     <h2>
       Log<br /> <span class="pwdtext">In</span>
@@ -135,9 +138,9 @@
         on:click={addName}
       />
     </div>
-    <span class="dhaa"
-      >Don't Have an Account, <a href="/#/signin">Create it here</a></span
-    >
+    <!-- <span class="dhaa"
+      >Want to use Secret code, <a href="/#/signin">Use it here</a></span
+    > -->
   </div>
 </main>
 

@@ -1,62 +1,37 @@
-<script>
+<script lang="ts">
   import Header from "./lib/header.svelte";
-  import { config } from "./fbaseconfig.js";
-  import { initializeApp } from "firebase/app";
-  import { getFirestore, doc, getDoc,setDoc } from "firebase/firestore";
-  let app = initializeApp(config);
-  let db = getFirestore(app);
-  let newid
-  let genpwd =async  (nameof) => {
-    let rmws = nameof.replace(" ", "");
-    rmws = rmws.toLowerCase();
-    let num = Math.floor(Math.random() * 1024);
-    let id = num + rmws + num;
-    let idref = doc(db,"users",id)
-    let snap = await getDoc(idref)
-    if(snap.exists()){
-      return genpwd(nameof)
-    }else{
-      return id
-    }
-  };
-  function register(){
-    //@ts-ignore
-    let nam = document.getElementById('fl').value
-  genpwd(nam).then(async (Response) => {
-    newid = Response
-    let ref = doc(db,'users',newid)
-    document.getElementById('askcont').style.display = "block"
-    let cookie = "isLogined=verfor934"
-    document.cookie = cookie;
-    document.cookie += `|name=${nam}`
-    document.cookie += `|id=${Response}`
-    document.cookie += `|`
-    setTimeout(()=>window.location.href = "/#/",5000)
-    
-    await setDoc(ref,{
-      batch:"",
-      name:nam,
-      coins:100,
-      batches:[]
-    })
-  })
-  } 
+  import {config} from "./fbaseconfig.js";
+  import {initializeApp} from "firebase/app"
+  import {getFirestore,doc, getDoc} from "firebase/firestore"
+  async function hashSHA256(message) {
+  // Encode the message as a Uint8Array
+  const messageUint8 = new TextEncoder().encode(message);
+
+  // Hash the message using SHA-256 algorithm
+  const hashBuffer = await crypto.subtle.digest('SHA-256', messageUint8);
+
+  // Convert the hash buffer to a hexadecimal string
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+
+  return hashHex;
+}
+const app = initializeApp(config)
+const db = getFirestore(app)
+const register = () => {
+  const docref = doc(db, "metadata","storage")
+  const docData = getDoc(docref)
+  console.log(docData)
+}
 </script>
 
 <Header />
 <main>
-  <div class="container-ask" id="askcont">
-    <div class="border-ask">
-      <div class="box-ask" >
-        <span class="text-ask"><span class="uidis"> Unique ID is Please note it down</span><br>{newid}</span>
-      </div>
-    </div>
-  </div>
   <div class="cont">
-    <h2 class="txt">Create An <br /> Account</h2>
-    <input type="text" id="fl" class="fields" placeholder="Please Enter Your Name" />
-    <button class="create" on:click={register}>Create</button>
-    <span>Already Have an Account, <a href="./#/askpwd">Log In</a></span>
+    <h2 class="txt">Use a <br /> Secret Code</h2>
+    <input type="text" id="fl" class="fields" placeholder="Your Secret Code??" />
+    <button class="create" on:click={register}>Use</button>
+    <span>Or use Google Sign In, <a href="./#/askpwd">Here</a></span>
   </div>
 </main>
 

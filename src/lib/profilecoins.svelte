@@ -20,7 +20,11 @@
       )
     }
     retrive(ref)
-}
+  }
+  //Checks if the user is loged in via secret code or provider and return ref of doc by that
+  const checkForSecretOrProvider = () => {
+
+  }
 </script>
 
 <main>

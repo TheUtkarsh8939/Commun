@@ -1,3 +1,3 @@
 <script>
-    window.location.href = "#/chat/Announcements"
+    window.location.href = "#/chat/tut"
 </script>

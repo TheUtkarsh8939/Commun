@@ -5,7 +5,8 @@
   import { getFirestore, collection, getDocs } from "firebase/firestore";
   import { initializeApp } from "firebase/app";
   import { config } from "./fbaseconfig";
-
+  import {blur} from "svelte/transition"
+  import { sineIn } from "svelte/easing";
   let arrOfData = [];
   const app = initializeApp(config);
   const fs = getFirestore(app);
@@ -32,9 +33,9 @@
 <svelte:head>
   <link rel="stylesheet" href="pg.css">
 </svelte:head>
-<main class="dark">
+<Nav bind:nameoftheuser={username} bind:coins={cn} bind:batches={badges}/>
+<main class="dark" in:blur="{{duration:800, easing:sineIn}}">
   <div class="svgBadge" style="display:none"></div>
-  <Nav bind:nameoftheuser={username} bind:coins={cn} bind:batches={badges}/>
   <UserMarket {username} bind:badges={badges} bind:coins={cn} />
     <div class="marketitems">
       {#each arrOfData as { elem, name, price, id }}
