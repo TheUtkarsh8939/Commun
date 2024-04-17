@@ -1,10 +1,12 @@
 <script lang="ts">
-  import {draw} from "svelte/transition"
+  import { draw } from "svelte/transition";
   import { initializeApp } from "firebase/app";
   import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
   import { config } from "./../fbaseconfig";
-  import {getAuth,signOut} from "firebase/auth"
+  import { getAuth, signOut } from "firebase/auth";
   import ProfileCoins from "./profilecoins.svelte";
+  import Dialog from "./dialog.svelte";
+  import NotOpenedAGroup from "./notOpenedAGroup.svelte";
   let app = initializeApp(config);
   let db = getFirestore(app);
   let gname = "";
@@ -12,6 +14,7 @@
   export let batches: string[];
   export let coins;
   export let nameoftheuser = "";
+  let isDiagOpened = false;
   //Function to Join a group
   const hasKey = (obj, key) => Object.keys(obj).includes(key);
   async function join() {
@@ -24,8 +27,8 @@
         mem.push(splitedCookie[3].split("id=")[1]);
         temp = docSnap.data();
         Object.assign(temp[gname].members, mem);
-        await setDoc(refofmetadata, temp).then(() =>{
-          window.location.href = "#/"
+        await setDoc(refofmetadata, temp).then(() => {
+          window.location.href = "#/";
         });
       } else {
         alert("Group does not exist");
@@ -63,14 +66,57 @@
   };
   export let userdata;
   //Sign out
+  const auth = getAuth();
   const signout = () => {
-    const auth = getAuth()
-    signOut(auth)
-    document.cookie += ";max-age=0"
-    window.location.href = "./#/AskPwd"
+    signOut(auth);
+    document.cookie += ";max-age=0";
+    window.location.href = "./#/AskPwd";
+  };
+  let triggerDiag;
+  let newGroupName
+  let newGroupId
+  async function CreateGroup() {
+    const refrence = doc(db,"metadata", "groups")
+    const docData = await getDoc(refrence)
+    if (newGroupName == undefined) {alert("Please Enter The Group's Name"); return 0}
+    let tempData = JSON.parse(JSON.stringify(docData.data()))
+    if(tempData[newGroupId] !== undefined){alert("Id already taken"); return 0}
+    let groupObj = {
+      name: newGroupId,
+      pname: newGroupName,
+      members:[auth.currentUser.uid],
+      logo: "",
+      availablefor: "all"
+    }
+    tempData[newGroupId] = groupObj 
+    setDoc(refrence, tempData).then(_ => window.location.reload())
+  
   }
 </script>
 
+<Dialog bind:this={triggerDiag}>
+  <button
+    on:click={triggerDiag.open()}
+    class="h-[30px] relative left-[45%] rotate-45 w-[30px] flex items-center justify-center"
+  >
+    <div class="x-line absolute w-[20px] h-[2px] rotate-90 bg-white"></div>
+    <div class="x-line absolute w-[20px] h-[2px] bg-white"></div>
+  </button>
+  <input bind:value={newGroupName}
+  placeholder="Group's Name"
+    type="text"
+    class="groupnametocreate h-[40px] w-[80%] rounded-3xl bg-black border border-cyan-400 mt-11 mb-11 p-2 text-lg font-[vibur] text-white"
+  />
+  <input bind:value={newGroupId}
+  placeholder="Group's ID"
+  type="text"
+  class="groupnametocreate h-[40px] w-[80%] rounded-3xl bg-black border border-cyan-400 mb-11 p-2 text-lg font-[vibur] text-white"
+/>
+  <button on:click={CreateGroup}
+    class="h-[50px] w-[100px] font-[vibur] text-2xl text-white mb-7 rounded-xl border-[2px] border-cyan-400"
+    >Create</button
+  >
+</Dialog>
 <div id="jagovr">
   <div class="sendui" id="jag">
     <h2>Join A group</h2>
@@ -157,7 +203,6 @@
     <button class="jag" id="jng" on:click={join}>Join</button>
   </div>
 </div>
-
 <div id="wrapper">
   <!-- Header -->
   <div class="usermenu" class:hgt-out={!userDropdown}>
@@ -171,13 +216,25 @@
     </button>
     <a class="content" href="#/marketplace">
       <img
+        alt="Marketplace"
         src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACaElEQVR4nO2Wz2vTYBjH30uTHrzJ7E3/BHeel02QXWT0IqgnNwZ63MWboN4c021SPbfMWU8mGR5qrTVJm4KUYebBtmy9SJlre/SiK8gjT7DQ5n1j3y2FvW3fB76QpN/k+3zeH2kIkSVL1niWWz0ou7U6iKAv1frnkwMI0Ljbo1MDaB+LkEjroOUdrnPhABJpAza3NXjxxuA6Fw5Ayztek3p3xAecCwfgCiIyUQBgRqbBVqFXv4uX4MG7q31azcz3ebry+7pieVcz85QPsyivGZnmB7DUDf8DvjtzVNBWbiE0wFZugfJhFuW11A2+5ndJBCyl7X+AbcepoIwVDw2QsejnYhYNoLSxt8EABSXOCnqZvU4FlQvhZ6BcoGcAs1he7I1n+eg86x+174TfA/sOvQcC94Gl6gNG/9wUWGqHWv/FWWZI05kJDdB0ZphezGQAdLDHYABbWWGF7LxnhxybsdAAx2aM6cVM5jKylZVggLxyxHzV7VxhN2RGQwOAGWV6MZPpzyutYIAUOYIUgV510hdgMTELN9Yu92kpMef9Rvtjw/O/nqL8kCKHwQBJ8sx/Qyu7DOv6Iypg3XgMrQ93qYBm7t7Q/O3sEg2QJGv/A4h6EEny49er83Cg3YK9SgV2KzUvBEcKhcd4ba9a9ZrCkUXhMV4blv9r5RvU394E7AV7ghR5Cs+JSnjK+FQC1Fl/Axn/+uBqeqwBrt1e5pa/icbPPyeWKxrAxSeH3GpIACJnAOQSqslNXBrPt9Di/YejDbC5rU0mQEOUf+I7p1hCI/8t5EqAkpwBGNklZAgiMnEAsmTJIiNRfwEz1k8acryjBQAAAABJRU5ErkJggg=="
       />
       <h3 class="gold">Marketplace</h3>
     </a>
     <button on:click={signout} class="content">
-      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAEaklEQVR4nO2Z20+bZRzHC8wegHJ420IF53Hq2K2JUW+MWWJcTJw33uo/oTBWeuTQMmBsOOdZNyHZ3+CFMXrhdHRbmBsrvKVAS19YC8yt6O3XPM/TF3p43/K0fZoY01/yuf98v3l+v75JDYb61Kc+h87x2b13T8xlNk7M7aFvNoPjPzBevvqY8tIVwiO8+D3j2Hd/UV74lvAQz3/zEM99TdjFs18RdvDMl4ynv9imHP2ckMZTlwmpRO/l1CmDqOmbyyT6Znnki8WZ/K6u/FEqvp0VT6P3M0IKT376IC4uwGwmR56/9UL5A/EdjdbTVJzQc4kGgLAA5TwZntYL5XuzrRNxVV5wgMc58o/25XlaV+XzWy9+Mj1UnokTnDNb4gKU+2SY+O4hi6rdunOGyXdfFBig2kVV5bVbT2nKd1/cFBeg+kXd1lzUnkta4lvourBJERpA+7ZXv6hOHXnHtMAAom671qI6s/Jd5zcoRNwxrcB+XhEXoNpFzb3tWq07JtfhGI/CHpRhn1ij8kID1HJRuy5swh6KwhZYgOQJQwrcgTQeg20qKTZAebc9pftktN66PSRT+bfv/oPXfkpD8i+gMxQTF4D/I6z8RXVMK7AFZXS65/G+Asobv+6gw7cgLkD5i5rSXtQCcXv2rUtjy3kBCK//soM3gSNCAnB/hM0ocE6twjkZQ/cEYQVd5xhkSemihggybd0WlJn86DI6hvIDEE4ruCYkBO9tJ/LdwUU4ArfhCNyCw8+w+25SbN4wW1RPmDbe6Z6n4oR2V3EAYSF4bztpnoifvL2nKVMxSVz1Ao0VB+BdVPJkSONC5RUBIXhvO33r/pu1CaBQPqo4AM9HGF1SX+0CvKfgw4oC8N52EsDmrU2A00lcqfgJ8d529Rf1rVuZ/448Ge5f1FAUUuDPovNIaHPdoFjPEv5A6yCj5czvaB5gaMoruPYB0GSoZvQ+wgp/UW0TcUjks2CU/DgtoWOE0T4SobQNR2AN3Ke0+gmLaPExLAPXayNPplTr+/JTSYo0mUTnxAal4xwhgfZxRlsoTrEG1ymtY4Q1NHvvwdKfH+DVn9MQIk+mlHyuuDS5kSOfyJFXxeM54utoGV2jNHvyAxB5y2BY3MccT+uF8sWt68iPrNIA5k+u4+TC33jlxy2YB+Zhci+KDaAlz8STJVsvfDIH4kzeMrwKi/sezP03YPr4N5j6w1Te6FsRF4C3dVX+8NZz5IdjMHsiMLnuwuS6A+PQfSr/hDcqLkAped5FzX0yTHwV5kCMYvLHYPLJMHrlfXmhAWxTCveiqvKlWy+Q96/kiR/xEGSRAQQs6oi+uFFDvsktMID+bY+XfDI8rRuz8kw8SsUJjUPL4gJUdNt15Uu33pSVFxpAf1Hj5S3qIfKNQ0y+wcUQGKCC2667qCslW2+g8kswnF0SF6Ci287ZepO7oHUiriJqrMH1hIhFVeUPxOXi1lUGI+L+5LOGEqesY2uJcm4776I26MmfibwjLEB96vM/nn8BBPCiXyhyXwIAAAAASUVORK5CYII=">
+      <img
+        alt="Sign Out"
+        src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAEaklEQVR4nO2Z20+bZRzHC8wegHJ420IF53Hq2K2JUW+MWWJcTJw33uo/oTBWeuTQMmBsOOdZNyHZ3+CFMXrhdHRbmBsrvKVAS19YC8yt6O3XPM/TF3p43/K0fZoY01/yuf98v3l+v75JDYb61Kc+h87x2b13T8xlNk7M7aFvNoPjPzBevvqY8tIVwiO8+D3j2Hd/UV74lvAQz3/zEM99TdjFs18RdvDMl4ynv9imHP2ckMZTlwmpRO/l1CmDqOmbyyT6Znnki8WZ/K6u/FEqvp0VT6P3M0IKT376IC4uwGwmR56/9UL5A/EdjdbTVJzQc4kGgLAA5TwZntYL5XuzrRNxVV5wgMc58o/25XlaV+XzWy9+Mj1UnokTnDNb4gKU+2SY+O4hi6rdunOGyXdfFBig2kVV5bVbT2nKd1/cFBeg+kXd1lzUnkta4lvourBJERpA+7ZXv6hOHXnHtMAAom671qI6s/Jd5zcoRNwxrcB+XhEXoNpFzb3tWq07JtfhGI/CHpRhn1ij8kID1HJRuy5swh6KwhZYgOQJQwrcgTQeg20qKTZAebc9pftktN66PSRT+bfv/oPXfkpD8i+gMxQTF4D/I6z8RXVMK7AFZXS65/G+Asobv+6gw7cgLkD5i5rSXtQCcXv2rUtjy3kBCK//soM3gSNCAnB/hM0ocE6twjkZQ/cEYQVd5xhkSemihggybd0WlJn86DI6hvIDEE4ruCYkBO9tJ/LdwUU4ArfhCNyCw8+w+25SbN4wW1RPmDbe6Z6n4oR2V3EAYSF4bztpnoifvL2nKVMxSVz1Ao0VB+BdVPJkSONC5RUBIXhvO33r/pu1CaBQPqo4AM9HGF1SX+0CvKfgw4oC8N52EsDmrU2A00lcqfgJ8d529Rf1rVuZ/448Ge5f1FAUUuDPovNIaHPdoFjPEv5A6yCj5czvaB5gaMoruPYB0GSoZvQ+wgp/UW0TcUjks2CU/DgtoWOE0T4SobQNR2AN3Ke0+gmLaPExLAPXayNPplTr+/JTSYo0mUTnxAal4xwhgfZxRlsoTrEG1ymtY4Q1NHvvwdKfH+DVn9MQIk+mlHyuuDS5kSOfyJFXxeM54utoGV2jNHvyAxB5y2BY3MccT+uF8sWt68iPrNIA5k+u4+TC33jlxy2YB+Zhci+KDaAlz8STJVsvfDIH4kzeMrwKi/sezP03YPr4N5j6w1Te6FsRF4C3dVX+8NZz5IdjMHsiMLnuwuS6A+PQfSr/hDcqLkAped5FzX0yTHwV5kCMYvLHYPLJMHrlfXmhAWxTCveiqvKlWy+Q96/kiR/xEGSRAQQs6oi+uFFDvsktMID+bY+XfDI8rRuz8kw8SsUJjUPL4gJUdNt15Uu33pSVFxpAf1Hj5S3qIfKNQ0y+wcUQGKCC2667qCslW2+g8kswnF0SF6Ci287ZepO7oHUiriJqrMH1hIhFVeUPxOXi1lUGI+L+5LOGEqesY2uJcm4776I26MmfibwjLEB96vM/nn8BBPCiXyhyXwIAAAAASUVORK5CYII="
+      />
       <h3 class="text-green-500">Sign Out</h3>
+    </button>
+    <button class="content" on:click={triggerDiag.open()}>
+      <img
+        style="height:56px;width:56px"
+        alt="Create a new account"
+        src="data:image/png;base64,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"
+      />
+      <h3 class="text-red-600">Create Group</h3>
     </button>
     <div class="content">
       <ProfileCoins bind:data={userdata} bind:coins bind:batches />
@@ -185,7 +242,9 @@
   </div>
   <header>
     <nav>
-      <a href="#/" class="flex items-center h-[100%]"><img class="brand-heading" src="logo.png" alt="" /></a>
+      <a href="#/" class="flex items-center h-[100%]"
+        ><img class="brand-heading" src="logo.png" alt="" /></a
+      >
       <div class="opdiv">
         {#if isvisbile}
           <button
@@ -294,7 +353,7 @@
     }
   }
   .content {
-    height: 20%;
+    height: calc(100% / 6);
     border-bottom: 1px solid rgb(86, 86, 86);
     box-sizing: border-box;
     display: flex;
@@ -307,7 +366,7 @@
     font-size: 30px;
   }
   .usermenu {
-    height: 300px;
+    height: 340px;
     display: flex;
     flex-direction: column;
     --widthofit: 250px;

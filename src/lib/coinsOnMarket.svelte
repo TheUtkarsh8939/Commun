@@ -71,6 +71,7 @@
   }
   .coinshow {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     height: 50px;
     font-size: 30px;

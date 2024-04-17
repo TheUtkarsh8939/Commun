@@ -88,9 +88,11 @@
     let groupRef = doc(db, "metadata", "groups");
     onSnapshot(groupRef, async groupSnap => {
       if (groupSnap.exists()) {
+
         let data = groupSnap.data();
         let count_for_showing_images = 0;
         let newdata = [];
+        console.log(data)
         for (const key in data) {
           if (data[key].members.includes(splitedCookie[3].split("id=")[1])) {
             newdata.push(data[key]);
