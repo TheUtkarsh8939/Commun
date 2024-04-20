@@ -468,7 +468,7 @@
     z-index: 2;
   }
   nav {
-    position: absolute;
+    position: sticky;
     top: 0;
     width: 100vw !important;
     display: grid !important;

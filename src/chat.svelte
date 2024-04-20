@@ -583,7 +583,7 @@
   </div>
   <!-- Side Grouping Menu -->
   <ExtendButton bind:isOpen />
-  <div id="sidenav" class="sidenav h-screen bg-slate-950">
+  <div id="sidenav" class="sidenav h-[calc(100vh-110px)] bg-slate-950">
     
   </div>
   <div class="areaformsg" id="areaformsg">

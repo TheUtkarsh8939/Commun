@@ -114,7 +114,7 @@ body, #app{
   top: 0;
   z-index: 6;
   transition: 2s all;
-  width: 30%;
+  width: 30vw;
   align-self: flex-start;
 }
 .group:hover{
@@ -189,7 +189,7 @@ body, #app{
 .areaformsg {
   width: 70vw;
   background-color: black;
-  height: calc(100vh - 110px);
+  height: calc(100% - 110px);
   position: absolute;
   z-index: 0;
   left: 30%;
@@ -208,7 +208,26 @@ body, #app{
   display: flex;
   flex-direction: column;
   z-index: -1;
-  overflow-y: scroll;
+  /* overflow-y: scroll; */
+}
+body::-webkit-scrollbar {
+  width: 2px;
+}
+
+/* Track */
+body::-webkit-scrollbar-track {
+  background: transparent; 
+  z-index:15;
+}
+ 
+/* Handle */
+body::-webkit-scrollbar-thumb {
+  background: linear-gradient(transparent,mediumslateblue,mediumslateblue,mediumslateblue,transparent); 
+}
+
+/* Handle on hover */
+body::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(transparent,mediumslateblue,transparent);  
 }
 .seamsg::-webkit-scrollbar {
   width: 2px;
