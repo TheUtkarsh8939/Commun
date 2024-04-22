@@ -43,8 +43,8 @@
   .uplace {
     width: 100vw;
     height: 210px;
-    background-color: black;
-    color: white;
+    background-color: var(--usr-market);
+    color: var(--text-color);
     font-family: "VIbur";
     display:flex;
     justify-content: space-between;
@@ -59,6 +59,7 @@
       width:50vw;
       display: flex;
       justify-content: center;
+      text-shadow: var(--usr-market-coin-shadow);
     }
   }
   .steelvorders {

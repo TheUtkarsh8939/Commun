@@ -25,7 +25,7 @@
     aspect-ratio: 1/1;
   }
   .lines {
-    background-color: white;
+    background-color: var(--text-color);
     height: 2px;
     width: 120px;
     border-radius: 20px;
@@ -35,8 +35,9 @@
   }
   .text {
     margin-top: 40px;
-    font-family: "VIbur";
+    font-family: "Vibur";
     font-size: 2.5rem;
+    color:var(--text-color);
   }
   .how-to-join {
     display: flex;
@@ -45,5 +46,6 @@
     flex-direction: column;
     font-weight: 400;
     font-style: normal;
+    color:var(--text-color);
   }
 </style>

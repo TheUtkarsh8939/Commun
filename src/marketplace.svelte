@@ -33,8 +33,8 @@
 <svelte:head>
   <link rel="stylesheet" href="pg.css">
 </svelte:head>
-<Nav bind:nameoftheuser={username} bind:coins={cn} bind:batches={badges}/>
 <main class="dark" in:blur="{{duration:800, easing:sineIn}}">
+  <Nav bind:nameoftheuser={username} bind:coins={cn} bind:batches={badges}/>
   <div class="svgBadge" style="display:none"></div>
   <UserMarket {username} bind:badges={badges} bind:coins={cn} />
     <div class="marketitems">
@@ -68,7 +68,7 @@
     overflow-y: scroll;
     overflow-x: hidden;
 
-    background-color: black;
+    background-color: var(--body-color);
     height: 100vh;
     width: 100vw;
   }

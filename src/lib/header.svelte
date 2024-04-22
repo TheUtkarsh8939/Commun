@@ -372,16 +372,13 @@
     --widthofit: 250px;
     transition: 2s all;
     position: absolute;
-    background-color: black;
+    background-color: var(--usrmenu-bg);
     width: var(--widthofit);
     top: 110px;
     left: calc(100vw - var(--widthofit));
     z-index: 9;
     border-radius: 0px 0px 20px 20px;
-    box-shadow:
-      0px 7px 5px 0px white,
-      0px 7px 10px 0px aqua,
-      0px 7px 15px aqua;
+    box-shadow:var(--usrmenu-shadow);
   }
   .Menu {
     transform: translateY(-10px);
@@ -476,7 +473,7 @@
     grid-template-rows: 1fr;
     // place-items: center;
     color: white;
-    background-color: #060606;
+    background-color: var(--nav-bg);
     align-items: center;
     height: calc(100% - 2px);
     .brand-heading {

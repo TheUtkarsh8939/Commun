@@ -54,11 +54,11 @@
   }
 </script>
 
-<Nav bind:userdata={userData} bind:coins={currentCoins}/>
 <svelte:head>
   <link rel="stylesheet" href="pg2.css">
 </svelte:head>
 <main class="dark">
+  <Nav bind:userdata={userData} bind:coins={currentCoins}/>
   <div class="img">
     {@html svg}
   </div>
@@ -81,7 +81,7 @@
     flex-direction: column;
     margin-top: 20px;
     gap:30px;
-    color: white;
+    color: var(--text-color);
     font-family: "Vibur";
     .name {
       font-size: 40px;
@@ -95,7 +95,7 @@
   }
   main {
     padding: 10px;
-    background-color: black;
+    background-color: var(--mpage-bg);
     height: 100vh;
     width: 100vw;
   }
