@@ -97,54 +97,61 @@
 
 </script>
 
-<div class="container-ask" id="askcont">
-  <div class="border-ask">
-    <div class="box-ask">
-      <span class="text-ask">Please Install to Continue</span>
-      <button type="button" class="ask" id="asktoinstall"
-        ><span class="innerText"> Install </span></button
-      >
+<main class="main dark">
+  <div class="container-ask" id="askcont">
+    <div class="border-ask">
+      <div class="box-ask">
+        <span class="text-ask">Please Install to Continue</span>
+        <button type="button" class="ask" id="asktoinstall"
+          ><span class="innerText"> Install </span></button
+        >
+      </div>
     </div>
   </div>
-</div>
-<Header />
-<main in:blur="{{duration: 800, easing:sineIn}}">
-  <div class="pwdbox">
-    <h2>
-      Log<br /> <span class="pwdtext">In</span>
-    </h2>
-    <div class="cont">
-      <button
-        bind:this={signinwithg}
-        id="invisible"
-        class="pwd logwithg"
-        on:click={signInWithGoogle}
-        ><img src="./google.svg" alt="" />Log In with google</button
-      >
-      <input
-        bind:this={name}
-        bind:value={scode}
-        type="text"
-        class="pwd"
-        id="pwd"
-        placeholder="Your Name?"
-      />
-      <input
-        bind:this={sub}
-        type="submit"
-        value="Submit"
-        class="pwd subbtn"
-        id="subbtn"
-        on:click={addName}
-      />
+  <Header />
+  <main  in:blur="{{duration: 800, easing:sineIn}}">
+    <div class="pwdbox">
+      <h2>
+        Log<br /> <span class="pwdtext">In</span>
+      </h2>
+      <div class="cont">
+        <button
+          bind:this={signinwithg}
+          id="invisible"
+          class="pwd logwithg"
+          on:click={signInWithGoogle}
+          ><img src="./google.svg" alt="" />Log In with google</button
+        >
+        <input
+          bind:this={name}
+          bind:value={scode}
+          type="text"
+          class="pwd"
+          id="pwd"
+          placeholder="Your Name?"
+        />
+        <input
+          bind:this={sub}
+          type="submit"
+          value="Submit"
+          class="pwd subbtn"
+          id="subbtn"
+          on:click={addName}
+        />
+      </div>
+      <!-- <span class="dhaa"
+        >Want to use Secret code, <a href="/#/signin">Use it here</a></span
+      > -->
     </div>
-    <!-- <span class="dhaa"
-      >Want to use Secret code, <a href="/#/signin">Use it here</a></span
-    > -->
-  </div>
+  </main>
+  
 </main>
-
 <style lang="scss">
+  .main{
+    height: 100vh;
+    width: 100vw;
+    display:block;
+  }
   .name {
     transform: translateX(-650px) !important;
     visibility: hidden;
@@ -168,7 +175,7 @@
     flex-direction: column;
   }
   .text-ask {
-    color: white;
+    color: var(--text-color);
     font-family: "Vibur", sans-serif;
     font-size: x-large;
     margin-bottom: 20px;
@@ -193,7 +200,7 @@
       0px 0px 7px #fff inset,
       0px 0px 12px #fff inset,
       0px 0px 15px rgb(138, 251, 236) inset;
-    color: white;
+    color: var(--text-color);
     text-shadow:
       0px 0px 10px #fff,
       0px 0px 15px #fff;
@@ -242,32 +249,24 @@
   @import url("https://fonts.googleapis.com/css2?family=Agbalumo&family=Vibur&display=swap");
   main {
     --wdt-of-pwdbox: 467.5px;
-    background-color: #0d0d0d;
+    background-color: var(--bg-signin);
     height: calc(100% - 110px);
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: white;
+    color: var(--text-color);
     .pwdbox {
       height: 550px;
       width: var(--wdt-of-pwdbox);
       border-radius: 20px;
-      border: 1px solid #00fbff;
-      color: white;
+      border: 1px solid var(--pwd-box-border);
+      color: var(--text-color);
       display: flex;
       flex-direction: column;
       align-items: center !important;
-      background-color: black;
-      box-shadow:
-        0 0 7px #fff,
-        0 0 10px #fff,
-        0 0 21px #fff,
-        0 0 42px #00fbff,
-        0 0 82px #00fbff,
-        0 0 92px #00fbff,
-        0 0 102px #0fa,
-        0 0 151px #0fa;
+      background-color: var(--pwdbox-bg);
+      box-shadow:var(--pwd-box-shadow);
       .pwdtext {
         position: absolute;
         left: 50%;
@@ -295,16 +294,13 @@
         border-radius: 25px;
         width: calc(calc(var(--wdt-of-pwdbox) * 80) / 100);
         height: 40px;
-        color: white;
-        border: 1px solid rgb(0, 251, 255);
-        background-color: rgb(0, 0, 0);
+        color: var(--text-color);
+        border: 1px solid var(--pwd-border);
+        background-color: var(--pwd-bg);
         // position: absolute;
 
         transform: translate(-50%, -50%);
-        box-shadow:
-          0px 0px 18px #fff,
-          0px 0px 28px rgb(0, 251, 255),
-          0px 0px 38px rgb(0, 253, 207);
+        box-shadow:var(--pwd-shadow);
         &::placeholder {
           color: rgb(125, 125, 125);
         }
@@ -322,7 +318,6 @@
       .subbtn {
         font-family: "Vibur";
         font-size: 20px;
-        background-color: black;
         width: 100px !important;
         margin-top: 75px;
         cursor: pointer;

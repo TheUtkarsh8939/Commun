@@ -59,10 +59,35 @@
     --nav-bg:rgb(255, 255, 255);
     --usrmenu-bg:rgba(0, 0, 0, 0.708);
     --mpage-bg:white;
+    --bg-signin:rgb(238, 238, 238);
+    --pwd-box-bg:white;
+    --pwd-box-border:black;
+    --pwd-box-shadow:none;
+    --pwd-shadow:none;
+    --pwd-bg:white;
+    --pwd-border:black;
   }
  
   .dark {
     /*Custom themes*/
+    --pwd-border:rgb(0, 251, 255);
+    --pwd-shadow: 0px 0px 18px #fff,
+    0px 0px 28px rgb(0, 251, 255),
+    0px 0px 38px rgb(0, 253, 207);
+    --pwd-bg:black;
+    --pwd-box-shadow:
+    0 0 7px #fff,
+    0 0 10px #fff,
+    0 0 21px #fff,
+    0 0 42px #00fbff,
+    0 0 82px #00fbff,
+    0 0 92px #00fbff,
+    0 0 102px #0fa,
+    0 0 151px #0fa;
+    --pwd-box-border:#00fbff;
+    --pwd-box-bg:black;
+
+    --bg-signin:#0d0d0d;
     --mpage-bg:black;
 
     --usrmenu-bg:rgba(0, 0, 0, 0.708);
