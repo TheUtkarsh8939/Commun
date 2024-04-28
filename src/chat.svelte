@@ -26,13 +26,14 @@
   } from "firebase/storage";
   import Ann from "./lib/ann.svelte";
   import { getMessaging, getToken } from "firebase/messaging";
-  import {getAuth, onAuthStateChanged} from "firebase/auth";
-  import { sineIn } from 'svelte/easing';
+  import { getAuth, onAuthStateChanged } from "firebase/auth";
+  import { sineIn } from "svelte/easing";
   import { onMount } from "svelte";
   import NotOpenedAGroup from "$lib/notOpenedAGroup.svelte";
 
   // Declaring Important Variables
-  let istgjn = false
+  let theme = "dark"
+  let istgjn = false;
   let filetext = document.getElementById("filenameupd");
   let updperct = document.querySelector(".pg");
   let barpg = document.getElementById("progress-pg");
@@ -47,6 +48,7 @@
   let cookietosplit = `|${document.cookie}`;
   let splitedCookie = cookietosplit.split("|");
   let username = splitedCookie[2];
+  const id = splitedCookie[3].replace("id=", "");
   let html = "";
   let isOpen = false;
   let oldIsOpen = isOpen;
@@ -82,17 +84,16 @@
       img.setAttribute("src", url);
     });
   }
-  
+
   //Function to Retrieve All the Groups from the database
   async function findGroups() {
     let groupRef = doc(db, "metadata", "groups");
-    onSnapshot(groupRef, async groupSnap => {
+    onSnapshot(groupRef, async (groupSnap) => {
       if (groupSnap.exists()) {
-
         let data = groupSnap.data();
         let count_for_showing_images = 0;
         let newdata = [];
-        console.log(data)
+        console.log(data);
         for (const key in data) {
           if (data[key].members.includes(splitedCookie[3].split("id=")[1])) {
             newdata.push(data[key]);
@@ -115,14 +116,14 @@
           "Critical Internal Server File Deleted(Internal Server Error)" + 500
         );
       }
-    })
+    });
     // const groupSnap = await getDoc(groupRef);
   }
-  onMount(()=> {
+  onMount(() => {
     findGroups();
-  })
+  });
   //Saving announcements
-  
+
   //Function to Disable Input bar
   async function disableWriting(grp: Array<any>) {
     let x = grp.length;
@@ -147,104 +148,104 @@
     }
   }
   // Loading All the messages on arrival
-    if (params.group !== "tut"){
-      let msgRef = collection(db, params.group);
-  disableWriting(params.group);
-  onSnapshot(msgRef, (snap) => {
-    let x = snap.docs.reverse();
-    x.forEach((doc) => {
-      if (username.split("name=")[1] != doc.data().sender) {
-        html += `<div class="msg">
+  if (params.group !== "tut") {
+    let msgRef = collection(db, params.group);
+    disableWriting(params.group);
+    onSnapshot(msgRef, (snap) => {
+      let x = snap.docs.reverse();
+      x.forEach((doc) => {
+        if (id != doc.data().uid) {
+          html += `<div class="msg">
           <span class="sender">${doc.data().sender} ${
             doc.data().batch
           }<br></span>
           ${doc.data().msg}
           </div>`;
         } else {
-          console.log(doc.data().msg)
-        html += `<div class="msg sentbyme">
-          <span class="sender">${doc.data().sender}${doc.data().batch}<br>
+          console.log(doc.data().msg);
+          html += `<div class="msg sentbyme">
+          <span class="sender">${doc.data().sender} ${doc.data().batch}<br>
             </span>
             ${doc.data().msg}
             
             </div>`;
-          }
-          msg.push({ ...doc.data(), id: doc.id });
-        });
-        msgamount = msg.length;
-        document.getElementById("seamsg").innerHTML = html;
-        html = "";
-        msg = [];
-        var elem = document.getElementById("seamsg");
-        elem.scrollTo(0, elem.scrollHeight);
+        }
+        msg.push({ ...doc.data(), id: doc.id });
       });
-    }
-      //Adding logic to open button and Change group
-      if (params != undefined) {
-        let oldGroup = params.group;
-        setInterval(() => {
-          if (params.group != oldGroup) {
-            msg = [];
-            let colRef = collection(db, params.group);
-            onSnapshot(colRef, (snap) => {
-              let x = snap.docs.reverse();
-              x.forEach((doc) => {
-                if (username.split("name=")[1] != doc.data().sender) {
-                  html += `<div class="msg">
+      msgamount = msg.length;
+      document.getElementById("seamsg").innerHTML = html;
+      html = "";
+      msg = [];
+      var elem = document.getElementById("seamsg");
+      elem.scrollTo(0, elem.scrollHeight);
+    });
+  }
+  //Adding logic to open button and Change group
+  if (params != undefined) {
+    let oldGroup = params.group;
+    setInterval(() => {
+      if (params.group != oldGroup) {
+        msg = [];
+        let colRef = collection(db, params.group);
+        onSnapshot(colRef, (snap) => {
+          let x = snap.docs.reverse();
+          x.forEach((doc) => {
+            if (id != doc.data().uid) {
+              html += `<div class="msg">
                     <span class="sender">${doc.data().sender} ${
                       doc.data().batch
                     }<br></span>
                 ${doc.data().msg}
                 </div>`;
-              } else {
-                html += `<div class="msg sentbyme">
+            } else {
+              html += `<div class="msg sentbyme">
                   <span class="sender">${doc.data().sender} ${
                     doc.data().batch
                   }<br></span>
                   ${doc.data().msg}
                   </div>`;
-                }
-                msg.push({ ...doc.data(), id: doc.id });
-              });
-              msgamount = msg.length;
-              document.getElementById("seamsg").innerHTML = html;
-              html = "";
-              
-              msg = [];
-              var elem = document.getElementById("seamsg");
-              elem.scrollTo(0, elem.scrollHeight);
-            });
-          }
-          disableWriting(params.group);
-          oldGroup = params.group;
-        }, 100);
+            }
+            msg.push({ ...doc.data(), id: doc.id });
+          });
+          msgamount = msg.length;
+          document.getElementById("seamsg").innerHTML = html;
+          html = "";
+
+          msg = [];
+          var elem = document.getElementById("seamsg");
+          elem.scrollTo(0, elem.scrollHeight);
+        });
       }
-      setInterval(() => {
-        if (isOpen != oldIsOpen) {
-          if (isOpen) {
-            document.getElementById("sidenav").style.transform = "scaleX(1)";
-          } else {
-            document.getElementById("sidenav").style.transform = "scaleX(0)";
-            document.getElementById("areaformsg").style.width = "100%";
-          }
-          oldIsOpen = isOpen;
-        }
-      }, 100);
-      //Fuction to send messages
-      async function sendmsg() {
-        //@ts-ignore
-        
-        let msgtosend = document.getElementById("msg").value;
-        sendmsgwtype("Text", "", msgtosend);
+      disableWriting(params.group);
+      oldGroup = params.group;
+    }, 100);
+  }
+  setInterval(() => {
+    if (isOpen != oldIsOpen) {
+      if (isOpen) {
+        document.getElementById("sidenav").style.transform = "scaleX(1)";
+      } else {
+        document.getElementById("sidenav").style.transform = "scaleX(0)";
+        document.getElementById("areaformsg").style.width = "100%";
       }
-      async function sendmsgwtype(type, durl, msgtosend) {
-        if (msgtosend != "") {
-          const date = new Date();
-          
-          let day = date.getDate();
-          let month = date.getMonth() + 1;
-          let year = date.getFullYear();
-      let batch = localStorage.getItem("batch")
+      oldIsOpen = isOpen;
+    }
+  }, 100);
+  //Fuction to send messages
+  async function sendmsg() {
+    //@ts-ignore
+
+    let msgtosend = document.getElementById("msg").value;
+    sendmsgwtype("Text", "", msgtosend);
+  }
+  async function sendmsgwtype(type, durl, msgtosend) {
+    if (msgtosend != "") {
+      const date = new Date();
+
+      let day = date.getDate();
+      let month = date.getMonth() + 1;
+      let year = date.getFullYear();
+      let batch = localStorage.getItem("batch");
       // @ts-ignore
       let msgid = 99999999999999 - msgamount;
       await setDoc(doc(db, params.group, `${msgid}`), {
@@ -254,9 +255,10 @@
         batch: batch,
         type: type,
         durl: durl,
+        uid: id,
       });
       //@ts-ignore
-      
+
       document.getElementById("msg").value = "";
     }
   }
@@ -281,7 +283,7 @@
     if (issendcontopen === false) {
       document.getElementById("sendovr").style.visibility = "hidden";
       document.getElementById("sendovr").style.transform = "scale(0)";
-      
+
       issendcontopen = true;
     } else {
       document.getElementById("sendovr").style.visibility = "visible";
@@ -326,11 +328,11 @@
         (error) => {
           alert(
             "An error Occured while uploading: " +
-            error.message +
-            "With code of" +
-            error.code +
-            "Caused by " +
-            error.cause
+              error.message +
+              "With code of" +
+              error.code +
+              "Caused by " +
+              error.cause
           );
         },
         () => {
@@ -348,7 +350,7 @@
       alert("A major error has occurd. Please inform the developer of the app");
     }
   };
-  
+
   //Open Join group
   function tgjn() {
     istgjn = !istgjn;
@@ -357,17 +359,16 @@
     // Optionally alert the current value
     alert(istgjn);
   }
-  
-//Redirect if user ain't logged in
-  onAuthStateChanged(getAuth(),(usr) => {
-    if (!usr){
-      window.location.href = "/#/AskPwd"
+
+  //Redirect if user ain't logged in
+  onAuthStateChanged(getAuth(), (usr) => {
+    if (!usr) {
+      window.location.href = "/#/AskPwd";
     }
-  })
+  });
 </script>
 
-
-<main class="dark">
+<main class="{theme} main">
   <div class="sendovr" id="sendovr">
     <div class="sendui">
       <div class="grid so2">
@@ -482,9 +483,9 @@
       </div>
     </div>
   </div>
-  
-  <Header />
-  <chatwindows style="display: flex;" >
+
+  <Header bind:theme/>
+  <chatwindows style="display: flex;">
     <div class="linkcont" id="linkcont">
       <div class="row" id="r1">
         <div
@@ -536,7 +537,7 @@
                   /></g
                 ></svg
               >
-  
+
               <span class="label">Images</span>
             </div></button
           >
@@ -557,7 +558,7 @@
                 d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM8 17c-.55 0-1-.45-1-1v-5c0-.55.45-1 1-1s1 .45 1 1v5c0 .55-.45 1-1 1zm4 0c-.55 0-1-.45-1-1V8c0-.55.45-1 1-1s1 .45 1 1v8c0 .55-.45 1-1 1zm4 0c-.55 0-1-.45-1-1v-2c0-.55.45-1 1-1s1 .45 1 1v2c0 .55-.45 1-1 1z"
               /></svg
             >
-  
+
             <span class="label">Poll</span>
           </div>
         </div>
@@ -576,7 +577,7 @@
                 d="m497.39 361.8-112-48a24 24 0 0 0 -28 6.9l-49.6 60.6a370.66 370.66 0 0 1 -177.19-177.19l60.6-49.6a23.94 23.94 0 0 0 6.9-28l-48-112a24.16 24.16 0 0 0 -27.5-13.9l-104 24a24 24 0 0 0 -18.6 23.39c0 256.5 207.9 464 464 464a24 24 0 0 0 23.4-18.6l24-104a24.29 24.29 0 0 0 -14.01-27.6z"
               /></svg
             >
-  
+
             <span class="label">Phone Number</span>
           </div>
         </div>
@@ -584,13 +585,13 @@
     </div>
     <!-- Side Grouping Menu -->
     <ExtendButton bind:isOpen />
-    <div id="sidenav" class="sidenav h-[calc(100vh-110px)] bg-slate-950">
-      
-    </div>
+    <div id="sidenav" class="sidenav h-[calc(100vh-110px)] bg-slate-950"></div>
     <div class="areaformsg" id="areaformsg">
       <div class="seamsg" id="seamsg">
-        <NotOpenedAGroup/>
-        <div class="msg" style="display:none"><span class="sender">ChatBot <br /></span>Welcome</div>
+        <NotOpenedAGroup />
+        <div class="msg" style="display:none">
+          <span class="sender">ChatBot <br /></span>Welcome
+        </div>
       </div>
       <div class="msgarea bg-slate-950">
         <input type="text" class="typemsg" id="msg" />
@@ -635,7 +636,6 @@
 </main>
 
 <style lang="scss">
-
   .cut {
     margin-top: auto;
     margin-left: auto;
@@ -658,7 +658,7 @@
       justify-content: center;
     }
   }
-  
+
   #sendovr {
     visibility: hidden;
     transform: scale(0);
@@ -828,7 +828,7 @@
     padding: 10px;
     font-size: 20px;
     margin-top: 0px;
-    box-shadow:var(--msg-type-shadow);
+    box-shadow: var(--msg-type-shadow);
   }
   .send {
     height: 50px;

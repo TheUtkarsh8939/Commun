@@ -7,14 +7,29 @@
   import ProfileCoins from "./profilecoins.svelte";
   import Dialog from "./dialog.svelte";
   import NotOpenedAGroup from "./notOpenedAGroup.svelte";
+  import {Switch}  from "$lib/components/ui/switch/index.ts";
+  import { onMount } from "svelte";
   let app = initializeApp(config);
   let db = getFirestore(app);
   let gname = "";
   let islogedin = true;
+  let isLight = false
+  export let theme = "dark"
+  $: {
+    window.localStorage.setItem("isLight", `${isLight}`)
+    if (isLight) {
+      theme = 'light';
+    } else {
+      theme = 'dark';
+    }
+  }
   export let batches: string[];
   export let coins;
   export let nameoftheuser = "";
   let isDiagOpened = false;
+  onMount(() => {
+    isLight = Boolean(window.localStorage.getItem("isLight"))
+  })
   //Function to Join a group
   const hasKey = (obj, key) => Object.keys(obj).includes(key);
   async function join() {
@@ -72,6 +87,13 @@
     document.cookie += ";max-age=0";
     window.location.href = "./#/AskPwd";
   };
+  let usr = auth.currentUser
+  let profPic
+  if (usr){
+    profPic = usr.photoURL
+  }else{
+    profPic = null
+  }
   let triggerDiag;
   let newGroupName
   let newGroupId
@@ -206,7 +228,7 @@
 <div id="wrapper">
   <!-- Header -->
   <div class="usermenu" class:hgt-out={!userDropdown}>
-    <div class="content hi">Hi {nameoftheuser}</div>
+    <div class="content hi"><img class="rounded-full h-[45px] mr-1 aspect-square" src={profPic} alt="">{nameoftheuser}</div>
     <button class="content" on:click={opnjoinmenu}>
       <img
         alt="Join"
@@ -226,7 +248,7 @@
         alt="Sign Out"
         src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAEaklEQVR4nO2Z20+bZRzHC8wegHJ420IF53Hq2K2JUW+MWWJcTJw33uo/oTBWeuTQMmBsOOdZNyHZ3+CFMXrhdHRbmBsrvKVAS19YC8yt6O3XPM/TF3p43/K0fZoY01/yuf98v3l+v75JDYb61Kc+h87x2b13T8xlNk7M7aFvNoPjPzBevvqY8tIVwiO8+D3j2Hd/UV74lvAQz3/zEM99TdjFs18RdvDMl4ynv9imHP2ckMZTlwmpRO/l1CmDqOmbyyT6Znnki8WZ/K6u/FEqvp0VT6P3M0IKT376IC4uwGwmR56/9UL5A/EdjdbTVJzQc4kGgLAA5TwZntYL5XuzrRNxVV5wgMc58o/25XlaV+XzWy9+Mj1UnokTnDNb4gKU+2SY+O4hi6rdunOGyXdfFBig2kVV5bVbT2nKd1/cFBeg+kXd1lzUnkta4lvourBJERpA+7ZXv6hOHXnHtMAAom671qI6s/Jd5zcoRNwxrcB+XhEXoNpFzb3tWq07JtfhGI/CHpRhn1ij8kID1HJRuy5swh6KwhZYgOQJQwrcgTQeg20qKTZAebc9pftktN66PSRT+bfv/oPXfkpD8i+gMxQTF4D/I6z8RXVMK7AFZXS65/G+Asobv+6gw7cgLkD5i5rSXtQCcXv2rUtjy3kBCK//soM3gSNCAnB/hM0ocE6twjkZQ/cEYQVd5xhkSemihggybd0WlJn86DI6hvIDEE4ruCYkBO9tJ/LdwUU4ArfhCNyCw8+w+25SbN4wW1RPmDbe6Z6n4oR2V3EAYSF4bztpnoifvL2nKVMxSVz1Ao0VB+BdVPJkSONC5RUBIXhvO33r/pu1CaBQPqo4AM9HGF1SX+0CvKfgw4oC8N52EsDmrU2A00lcqfgJ8d529Rf1rVuZ/448Ge5f1FAUUuDPovNIaHPdoFjPEv5A6yCj5czvaB5gaMoruPYB0GSoZvQ+wgp/UW0TcUjks2CU/DgtoWOE0T4SobQNR2AN3Ke0+gmLaPExLAPXayNPplTr+/JTSYo0mUTnxAal4xwhgfZxRlsoTrEG1ymtY4Q1NHvvwdKfH+DVn9MQIk+mlHyuuDS5kSOfyJFXxeM54utoGV2jNHvyAxB5y2BY3MccT+uF8sWt68iPrNIA5k+u4+TC33jlxy2YB+Zhci+KDaAlz8STJVsvfDIH4kzeMrwKi/sezP03YPr4N5j6w1Te6FsRF4C3dVX+8NZz5IdjMHsiMLnuwuS6A+PQfSr/hDcqLkAped5FzX0yTHwV5kCMYvLHYPLJMHrlfXmhAWxTCveiqvKlWy+Q96/kiR/xEGSRAQQs6oi+uFFDvsktMID+bY+XfDI8rRuz8kw8SsUJjUPL4gJUdNt15Uu33pSVFxpAf1Hj5S3qIfKNQ0y+wcUQGKCC2667qCslW2+g8kswnF0SF6Ci287ZepO7oHUiriJqrMH1hIhFVeUPxOXi1lUGI+L+5LOGEqesY2uJcm4776I26MmfibwjLEB96vM/nn8BBPCiXyhyXwIAAAAASUVORK5CYII="
       />
-      <h3 class="text-green-500">Sign Out</h3>
+      <h3 class="text-emerald-300">Sign Out</h3>
     </button>
     <button class="content" on:click={triggerDiag.open()}>
       <img
@@ -238,6 +260,9 @@
     </button>
     <div class="content">
       <ProfileCoins bind:data={userdata} bind:coins bind:batches />
+    </div>
+    <div class="content flex justify-around text-rose-400">
+      Light Mode? <Switch class="mr-1" style="box-shadow: 0px 0px 10px white, 0px 0px 20px white;" bind:checked={isLight}/>
     </div>
   </div>
   <header>
@@ -353,7 +378,7 @@
     }
   }
   .content {
-    height: calc(100% / 6);
+    height: calc(100% / 7);
     border-bottom: 1px solid rgb(86, 86, 86);
     box-sizing: border-box;
     display: flex;
@@ -366,7 +391,7 @@
     font-size: 30px;
   }
   .usermenu {
-    height: 340px;
+    height: 380px;
     display: flex;
     flex-direction: column;
     --widthofit: 250px;

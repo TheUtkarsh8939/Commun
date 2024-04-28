@@ -28,13 +28,14 @@
   let username;
   let cn;
   const cookie = document.cookie;
+  let theme
 </script>
 
 <svelte:head>
   <link rel="stylesheet" href="pg.css">
 </svelte:head>
-<main class="dark" in:blur="{{duration:800, easing:sineIn}}">
-  <Nav bind:nameoftheuser={username} bind:coins={cn} bind:batches={badges}/>
+<main class="{theme} main" in:blur="{{duration:800, easing:sineIn}}">
+  <Nav bind:theme bind:nameoftheuser={username} bind:coins={cn} bind:batches={badges}/>
   <div class="svgBadge" style="display:none"></div>
   <UserMarket {username} bind:badges={badges} bind:coins={cn} />
     <div class="marketitems">

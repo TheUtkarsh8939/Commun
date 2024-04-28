@@ -1,7 +1,7 @@
 {
   "name": "friends",
   "private": true,
-  "version": "7.2.7",
+  "version": "7.3.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -25,7 +25,7 @@
   "dependencies": {
     "@google-cloud/firestore": "file:google-cloud/firestore@latest",
     "@vercel/node": "^3.0.26",
-    "bits-ui": "^0.21.3",
+    "bits-ui": "^0.21.5",
     "clsx": "^2.1.0",
     "dotenv": "^16.4.5",
     "firebase": "^10.10.0",

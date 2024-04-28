@@ -18,6 +18,8 @@
   let name;
   let price;
   let svg;
+  let theme
+
   let currentCoins;
   const cookie = document.cookie
   const uId = cookie.split("|")[2].split("id=")[1]
@@ -57,8 +59,8 @@
 <svelte:head>
   <link rel="stylesheet" href="pg2.css">
 </svelte:head>
-<main class="dark">
-  <Nav bind:userdata={userData} bind:coins={currentCoins}/>
+<main class="{theme} main">
+  <Nav bind:theme bind:userdata={userData} bind:coins={currentCoins}/>
   <div class="img">
     {@html svg}
   </div>
