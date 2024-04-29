@@ -3,7 +3,7 @@
   import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
   import { initializeApp } from "firebase/app";
   import { config } from "./fbaseconfig";
-  import { blur } from 'svelte/transition';
+  import { blur } from "svelte/transition";
   import {
     onAuthStateChanged,
     getAuth,
@@ -15,6 +15,7 @@
   import { quintIn, sineIn } from "svelte/easing";
 
   //Vars
+  let theme
   let username;
   let firebase = initializeApp(config);
   let db = getFirestore(firebase);
@@ -23,6 +24,22 @@
   //Nessecary interface
   interface token {
     token: string;
+  }
+  async function addName() {
+    if (scode !== "") {
+
+      name.style.transform = "translatex(-650px)";
+      sub.style.transform = "translatex(-650px)";
+      sub.style.visibility = "hidden";
+      name.style.visibility = "hidden";
+      name.style.opacity = "0";
+      sub.style.opacity = "0";
+      username = scode;
+
+      signinwithg.setAttribute("id", "");
+    } else {
+      alert("Please Enter Your Name");
+    }
   }
   //Asking for PWA installation
   window.addEventListener("beforeinstallprompt", (e) => {
@@ -55,7 +72,7 @@
     localStorage.setItem("batch", batch);
     window.location.href = "/#/";
   }
-  signOut(auth)
+  signOut(auth);
   onAuthStateChanged(auth, async (user) => {
     if (user && user.providerData[0].providerId === "google.com") {
       console.log(user);
@@ -79,25 +96,9 @@
   let name: Element;
   let sub: Element;
   let signinwithg: Element;
-  async function addName() {
-    if (scode !== "") {
-      name.style.transform = "translatex(-650px)";
-      sub.style.transform = "translatex(-650px)";
-      sub.style.visibility = "hidden";
-      name.style.visibility = "hidden";
-      name.style.opacity = "0";
-      sub.style.opacity = "0";
-      username = scode;
-
-      signinwithg.setAttribute("id", "");
-    }else{
-      alert("Please Enter Your Name")
-    }
-  }
-
 </script>
 
-<main class="main dark">
+<main class="main {theme}">
   <div class="container-ask" id="askcont">
     <div class="border-ask">
       <div class="box-ask">
@@ -108,8 +109,8 @@
       </div>
     </div>
   </div>
-  <Header />
-  <main  in:blur="{{duration: 800, easing:sineIn}}">
+  <Header bind:theme/>
+  <main in:blur={{ duration: 800, easing: sineIn }}>
     <div class="pwdbox">
       <h2>
         Log<br /> <span class="pwdtext">In</span>
@@ -144,13 +145,14 @@
       > -->
     </div>
   </main>
-  
 </main>
+
 <style lang="scss">
-  .main{
+  .main {
     height: 100vh;
     width: 100vw;
-    display:block;
+    display: block;
+    overflow: hidden;
   }
   .name {
     transform: translateX(-650px) !important;
@@ -266,7 +268,7 @@
       flex-direction: column;
       align-items: center !important;
       background-color: var(--pwdbox-bg);
-      box-shadow:var(--pwd-box-shadow);
+      box-shadow: var(--pwd-box-shadow);
       .pwdtext {
         position: absolute;
         left: 50%;
@@ -300,7 +302,7 @@
         // position: absolute;
 
         transform: translate(-50%, -50%);
-        box-shadow:var(--pwd-shadow);
+        box-shadow: var(--pwd-shadow);
         &::placeholder {
           color: rgb(125, 125, 125);
         }

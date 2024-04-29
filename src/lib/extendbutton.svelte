@@ -13,11 +13,11 @@
 
 <button
   on:click={open}
-  class="Menu flex flex-col items-center w-12 bg-gray-950"
+  class="Menu flex flex-col items-center w-12 bg-gray-200 dark:bg-gray-950"
 >
-  <div class="line rounded bg-white mt-5 h-1 w-4/5"></div>
-  <div class="line rounded bg-white mt-1 h-1 w-4/5"></div>
-  <div class="line rounded bg-white mt-1 h-1 w-4/5"></div>
+  <div class="line rounded bg-black dark:bg-white mt-5 h-1 w-4/5"></div>
+  <div class="line rounded bg-black dark:bg-white mt-1 h-1 w-4/5"></div>
+  <div class="line rounded bg-black dark:bg-white mt-1 h-1 w-4/5"></div>
 </button>
 
 <style>

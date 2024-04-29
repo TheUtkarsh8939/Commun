@@ -28,6 +28,9 @@
   export let nameoftheuser = "";
   let isDiagOpened = false;
   onMount(() => {
+    if (window.localStorage.getItem("isLight") == null){
+      window.localStorage.setItem("isLight","false")
+    }
     isLight = Boolean(window.localStorage.getItem("isLight"))
   })
   //Function to Join a group

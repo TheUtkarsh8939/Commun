@@ -593,10 +593,11 @@
           <span class="sender">ChatBot <br /></span>Welcome
         </div>
       </div>
-      <div class="msgarea bg-slate-950">
-        <input type="text" class="typemsg" id="msg" />
-        <button class="send" id="sendmsg" type="button" on:click={sendmsg}
+      <div class="msgarea dark:border-none border-l-2 border-t-2 border-gray-500">
+        <input type="text" class="typemsg dark:border-white border-2 border-gray-700" id="msg" />
+        <button id="sendmsg" type="button" on:click={sendmsg}
           ><svg
+            class="text-black dark:text-white ml-2"
             xmlns="http://www.w3.org/2000/svg"
             xmlns:xlink="http://www.w3.org/1999/xlink"
             fill="currentColor"
@@ -618,11 +619,11 @@
         >
         <button class="send" on:click={openLink}>
           <svg
+            class="font-thin dark:fill-white fill-black"
             xmlns="http://www.w3.org/2000/svg"
             enable-background="new 0 0 24 24"
             viewBox="0 0 24 24"
             id="link"
-            fill="#fff"
             ><path
               d="M10,15H7c-1.7,0-3-1.3-3-3s1.3-3,3-3h3c0.6,0,1-0.4,1-1s-0.4-1-1-1H7c-2.8,0-5,2.2-5,5s2.2,5,5,5h3c0.6,0,1-0.4,1-1
             S10.6,15,10,15z M17,7h-3c-0.6,0-1,0.4-1,1s0.4,1,1,1h3c1.7,0,3,1.3,3,3s-1.3,3-3,3h-3c-0.6,0-1,0.4-1,1s0.4,1,1,1h3
@@ -822,9 +823,8 @@
     width: 80%;
     height: 40px;
     border-radius: 20px;
-    border: 1px solid white;
     background-color: var(--msg-type-bg);
-    color: white;
+    color: var(--text-color);
     padding: 10px;
     font-size: 20px;
     margin-top: 0px;
