@@ -17,6 +17,7 @@
   export let theme = "dark"
   $: {
     window.localStorage.setItem("isLight", `${isLight}`)
+    console.log(window.localStorage.getItem("isLight"))
     if (isLight) {
       theme = 'light';
     } else {
@@ -27,11 +28,18 @@
   export let coins;
   export let nameoftheuser = "";
   let isDiagOpened = false;
+  let toBool = (arg)=> {
+    if (arg == "false"){
+      return false
+    }else{
+      return true
+    }
+  }
   onMount(() => {
     if (window.localStorage.getItem("isLight") == null){
       window.localStorage.setItem("isLight","false")
     }
-    isLight = Boolean(window.localStorage.getItem("isLight"))
+    isLight = toBool(window.localStorage.getItem("isLight"))
   })
   //Function to Join a group
   const hasKey = (obj, key) => Object.keys(obj).includes(key);
