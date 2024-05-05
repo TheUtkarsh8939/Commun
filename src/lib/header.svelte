@@ -438,7 +438,7 @@
   }
   #jag {
     height: 500px;
-    width: 400px;
+    width: 80vw;
     display: flex;
     flex-direction: column;
     #jng {
@@ -524,5 +524,12 @@
       margin-right: 20px;
     }
     z-index: 2;
+  }
+  @media only screen and (min-width: 513px) {
+    #jag{
+      width: 400px;
+      max-height: 50vh !important;
+      height: 30vh !important;
+    }
   }
 </style>
