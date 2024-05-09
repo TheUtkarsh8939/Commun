@@ -24,8 +24,7 @@ let register = async ()=> {
     headers: {
       "x-auth-uid":id,
       "Access-Control-Allow-Origin":"*"
-    },
-    mode: 'no-cors'
+    }
   })
   if (!res.ok) {
       if (res.status === 400) {
