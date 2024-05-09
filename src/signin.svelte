@@ -2,38 +2,67 @@
   import Header from "./lib/header.svelte";
   import {config} from "./fbaseconfig.js";
   import {initializeApp} from "firebase/app"
-  import {getFirestore,doc, getDoc} from "firebase/firestore"
-  async function hashSHA256(message) {
-  // Encode the message as a Uint8Array
-  const messageUint8 = new TextEncoder().encode(message);
-
-  // Hash the message using SHA-256 algorithm
-  const hashBuffer = await crypto.subtle.digest('SHA-256', messageUint8);
-
-  // Convert the hash buffer to a hexadecimal string
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
-
-  return hashHex;
-}
+  import { getAuth, signInWithCustomToken } from "firebase/auth";
+  import Dialog from "./lib/dialog.svelte";
 const app = initializeApp(config)
-const db = getFirestore(app)
-const register = () => {
-  const docref = doc(db, "metadata","storage")
-  const docData = getDoc(docref)
-  console.log(docData)
+let theme
+let open
+let id
+function createCookies(name, pass, batch) {
+    let cookie = "isLogined=verfor934";
+    document.cookie = cookie;
+    document.cookie += `|name=${name}`;
+    document.cookie += `|id=${pass}`;
+    document.cookie += `|${batch}`;
+
+    localStorage.setItem("batch", batch);
+    window.location.href = "/#/";
+}
+let register = async ()=> {
+  const auth = getAuth()
+  const res = await fetch("./api/auth",{
+    headers: {
+      "x-auth-uid":id
+    }
+  })
+  if (!res.ok) {
+      if (res.status === 400) {
+        // Handle specific error for 400 status code
+        open()
+      } else {
+        console.error(`Error fetching data: ${res.status}`);
+      }
+      throw new Error("Request failed");  // Re-throw to propagate the error
+  }
+  const data = await res.json()
+  const token = data.token
+  signInWithCustomToken(auth,token).then(cred => {
+    createCookies(data.name,id,data.batch)
+  }).catch(err => {
+    console.error(`Error Logining:${err}`)
+  })
 }
 </script>
 
-<Header />
-<main>
+<div class="main {theme}">
+  <Dialog bind:open>
+    <button class="cut rotate-45 ml-auto mt-[10px] mr-[10px]" on:click={open}>
+      <div class="rod h-[20px] w-[5px] absolute bg-white"></div>
+      <div class="rod h-[20px] w-[5px] absolute bg-white rotate-90"></div>
+
+    </button>
+    <span class="text-white p-[100px]" style="font-size:35px">Wrong Id</span>
+  </Dialog>
+  <Header bind:theme/>
+<main >
   <div class="cont">
     <h2 class="txt">Use a <br /> Secret Code</h2>
-    <input type="text" id="fl" class="fields" placeholder="Your Secret Code??" />
+    <input bind:value={id} type="text" id="fl" class="fields" placeholder="Your Secret Code??" />
     <button class="create" on:click={register}>Use</button>
     <span>Or use Google Sign In, <a href="./#/askpwd">Here</a></span>
   </div>
 </main>
+</div>
 
 <style lang="scss">
   .uidis{
@@ -71,18 +100,7 @@ const register = () => {
       0px 0px 15px #fff;
     font-family: "Vibur", sans-serif;
   }
-  #askcont {
-    box-sizing: border-box;
-    position: absolute;
-    height: 100vh;
-    width: calc(100vw + 20vw);
-    z-index: 7;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    left: 50%;
-    transform: translateX(-50%);
-  }
+
   .border-ask {
     background-image: linear-gradient(
       to bottom right,

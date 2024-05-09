@@ -140,9 +140,9 @@
           on:click={addName}
         />
       </div>
-      <!-- <span class="dhaa"
+      <span class="dhaa"
         >Want to use Secret code, <a href="/#/signin">Use it here</a></span
-      > -->
+      >
     </div>
   </main>
 </main>
