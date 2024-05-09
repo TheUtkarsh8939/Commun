@@ -20,7 +20,7 @@ function createCookies(name, pass, batch) {
 }
 let register = async ()=> {
   const auth = getAuth()
-  const res = await fetch("./api/auth",{
+  const res = await fetch("commun-mu.vercel.app/api/auth",{
     headers: {
       "x-auth-uid":id
     }
