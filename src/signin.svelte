@@ -20,17 +20,19 @@ function createCookies(name, pass, batch) {
 }
 let register = async ()=> {
   const auth = getAuth()
-  const res = await fetch("commun-mu.vercel.app/api/auth",{
+  const res = await fetch("./api/auth",{
     headers: {
-      "x-auth-uid":id
-    }
+      "x-auth-uid":id,
+      "Access-Control-Allow-Origin":"*"
+    },
+    mode: 'no-cors'
   })
   if (!res.ok) {
       if (res.status === 400) {
         // Handle specific error for 400 status code
         open()
       } else {
-        console.error(`Error fetching data: ${res.status}`);
+        console.error(res);
       }
       throw new Error("Request failed");  // Re-throw to propagate the error
   }
