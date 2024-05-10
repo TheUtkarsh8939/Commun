@@ -1,14 +1,16 @@
 <script lang="ts">
+  import Loading from "./lib/loading.svelte";
   import Header from "./lib/header.svelte";
-  import {config} from "./fbaseconfig.js";
-  import {initializeApp} from "firebase/app"
+  import { config } from "./fbaseconfig.js";
+  import { initializeApp } from "firebase/app";
   import { getAuth, signInWithCustomToken } from "firebase/auth";
   import Dialog from "./lib/dialog.svelte";
-const app = initializeApp(config)
-let theme
-let open
-let id
-function createCookies(name, pass, batch) {
+  const app = initializeApp(config);
+  let theme;
+  let open;
+  let id;
+  let isOpen
+  function createCookies(name, pass, batch) {
     let cookie = "isLogined=verfor934";
     document.cookie = cookie;
     document.cookie += `|name=${name}`;
@@ -17,56 +19,67 @@ function createCookies(name, pass, batch) {
 
     localStorage.setItem("batch", batch);
     window.location.href = "/#/";
-}
-let register = async ()=> {
-  const auth = getAuth()
-  const res = await fetch("./api/auth",{
-    headers: {
-      "x-auth-uid":id,
-      "Access-Control-Allow-Origin":"*"
-    }
-  })
-  if (!res.ok) {
+  }
+  let register = async () => {
+    isOpen = true
+    const auth = getAuth();
+    const res = await fetch("./api/auth", {
+      headers: {
+        "x-auth-uid": id,
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+    if (!res.ok) {
       if (res.status === 400) {
         // Handle specific error for 400 status code
-        open()
+        open();
       } else {
         console.error(res);
       }
-      throw new Error("Request failed");  // Re-throw to propagate the error
-  }
-  const data = await res.json()
-  const token = data.token
-  signInWithCustomToken(auth,token).then(cred => {
-    createCookies(data.name,id,data.batch)
-  }).catch(err => {
-    console.error(`Error Logining:${err}`)
-  })
-}
+      throw new Error("Request failed"); // Re-throw to propagate the error
+    }
+    const data = await res.json();
+    const token = data.token;
+    signInWithCustomToken(auth, token)
+      .then((cred) => {
+        createCookies(data.name, id, data.batch);
+        window.location.href = "./#/chat/tut"
+        isOpen = false;
+      })
+      .catch((err) => {
+        console.error(`Error Logining:${err}`);
+      });
+  };
 </script>
 
 <div class="main {theme}">
+  <Loading bind:isOpen/>
   <Dialog bind:open>
     <button class="cut rotate-45 ml-auto mt-[10px] mr-[10px]" on:click={open}>
       <div class="rod h-[20px] w-[5px] absolute bg-white"></div>
       <div class="rod h-[20px] w-[5px] absolute bg-white rotate-90"></div>
-
     </button>
     <span class="text-white p-[100px]" style="font-size:35px">Wrong Id</span>
   </Dialog>
-  <Header bind:theme/>
-<main >
-  <div class="cont">
-    <h2 class="txt">Use a <br /> Secret Code</h2>
-    <input bind:value={id} type="text" id="fl" class="fields" placeholder="Your Secret Code??" />
-    <button class="create" on:click={register}>Use</button>
-    <span>Or use Google Sign In, <a href="./#/askpwd">Here</a></span>
-  </div>
-</main>
+  <Header bind:theme />
+  <main>
+    <div class="cont">
+      <h2 class="txt">Use a <br /> Secret Code</h2>
+      <input
+        bind:value={id}
+        type="text"
+        id="fl"
+        class="fields"
+        placeholder="Your Secret Code??"
+      />
+      <button class="create" on:click={register}>Use</button>
+      <span>Or use Google Sign In, <a href="./#/askpwd">Here</a></span>
+    </div>
+  </main>
 </div>
 
 <style lang="scss">
-  .uidis{
+  .uidis {
     font-size: 20px;
   }
   .text-ask {
@@ -122,7 +135,7 @@ let register = async ()=> {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%,-50%);
+    transform: translate(-50%, -50%);
   }
   .box-ask {
     border-radius: 20px;
@@ -181,7 +194,7 @@ let register = async ()=> {
       color: #fff;
     }
     .fields {
-      color:white !important;
+      color: white !important;
       margin-top: 100px;
       width: 80%;
       height: 40px;

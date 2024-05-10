@@ -13,10 +13,17 @@
   let db = getFirestore(app);
   let gname = "";
   let islogedin = true;
-  let isLight = false
+  let isLight
   export let theme = "dark"
+  let toStr = (bool: boolean) => {
+    if (bool == false){
+      return "false"
+    }else{
+      return "true"
+    }
+  }
   $: {
-    window.localStorage.setItem("isLight", `${isLight}`)
+    window.localStorage.setItem("isLight", toStr(isLight))
     console.log(window.localStorage.getItem("isLight"))
     if (isLight) {
       theme = 'light';
@@ -35,12 +42,12 @@
       return true
     }
   }
-  onMount(() => {
-    if (window.localStorage.getItem("isLight") == null){
-      window.localStorage.setItem("isLight","false")
-    }
-    isLight = toBool(window.localStorage.getItem("isLight"))
-  })
+  if (window.localStorage.getItem("isLight") == null){
+    window.localStorage.setItem("isLight","false")
+  }
+  isLight = toBool(window.localStorage.getItem("isLight"))
+  console.log(toBool(window.localStorage.getItem("isLight")) + ":" + window.localStorage.getItem("isLight"))
+ 
   //Function to Join a group
   const hasKey = (obj, key) => Object.keys(obj).includes(key);
   async function join() {

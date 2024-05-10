@@ -148,6 +148,7 @@
 </main>
 
 <style lang="scss">
+
   .main {
     height: 100vh;
     width: 100vw;
@@ -329,8 +330,10 @@
       .dhaa {
         font-family: "Vibur";
         font-size: 20px;
-        position: absolute;
-        margin-top: 500px;
+        margin-top: 470px;
+        font-size:clamp(15px,5vw,20px);
+        display: flex;
+        flex-wrap: wrap;
         a {
           color: rgb(0, 255, 242);
         }
