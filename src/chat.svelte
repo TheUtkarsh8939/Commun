@@ -365,14 +365,15 @@
       window.location.href = "/#/AskPwd";
     }
   });
+  let aiTalkOpen = false;
   async function setIdToken(){
    idToken = await auth.currentUser.getIdToken(false)
+   aiTalkOpen = !aiTalkOpen;
   }
-  
 </script>
 
 <main class="{theme} main">
-  <AiTalk/>
+  <AiTalk bind:isOpen={aiTalkOpen}/>
   <button on:click={setIdToken} class="absolute z-10 bottom-[75px] flex items-center justify-center right-4 h-14 w-14 rounded-full" style="box-shadow:var(--ai-btn-shadow)">
     <Avatar.Root class="h-14 w-14">
       <Avatar.Image src="./Ai.png" alt="AI"  />

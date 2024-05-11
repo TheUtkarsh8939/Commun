@@ -28,8 +28,7 @@
   async function addName() {
     if (scode !== "") {
 
-      name.style.transform = "translatex(-650px)";
-      sub.style.transform = "translatex(-650px)";
+     
       sub.style.visibility = "hidden";
       name.style.visibility = "hidden";
       name.style.opacity = "0";
@@ -153,7 +152,7 @@
     height: 100vh;
     width: 100vw;
     display: block;
-    overflow: hidden;
+    overflow:hidden;
   }
   .name {
     transform: translateX(-650px) !important;
@@ -162,6 +161,7 @@
   }
   #invisible {
     visibility: hidden;
+    display: none;
     transform: translateX(250px);
   }
   .logwithg {
