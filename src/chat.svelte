@@ -21,16 +21,14 @@
     getDownloadURL,
     getStorage,
     ref,
-    uploadBytes,
     uploadBytesResumable,
   } from "firebase/storage";
-  import Ann from "./lib/ann.svelte";
-  import { getMessaging, getToken } from "firebase/messaging";
   import { getAuth, onAuthStateChanged } from "firebase/auth";
-  import { sineIn } from "svelte/easing";
   import { onMount } from "svelte";
   import NotOpenedAGroup from "$lib/notOpenedAGroup.svelte";
-
+  import * as Avatar from "$lib/components/ui/avatar/index.js";
+  import AiTalk from "./lib/aiTalk.svelte"
+ 
   // Declaring Important Variables
   let theme = "dark"
   let istgjn = false;
@@ -57,7 +55,7 @@
   let db = getFirestore(app);
   let msgamount: number = 0;
   let toshow = false;
-  let announcement = "";
+  let idToken
   //Asking for PWA installation
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
@@ -359,16 +357,28 @@
     // Optionally alert the current value
     alert(istgjn);
   }
-
+  //Getting Auth
+  let auth = getAuth()
   //Redirect if user ain't logged in
-  onAuthStateChanged(getAuth(), (usr) => {
+  onAuthStateChanged(auth, (usr) => {
     if (!usr) {
       window.location.href = "/#/AskPwd";
     }
   });
+  async function setIdToken(){
+   idToken = await auth.currentUser.getIdToken(false)
+  }
+  
 </script>
 
 <main class="{theme} main">
+  <AiTalk/>
+  <button on:click={setIdToken} class="absolute z-10 bottom-[75px] flex items-center justify-center right-4 h-14 w-14 rounded-full" style="box-shadow:var(--ai-btn-shadow)">
+    <Avatar.Root class="h-14 w-14">
+      <Avatar.Image src="./Ai.png" alt="AI"  />
+      <Avatar.Fallback>Ai</Avatar.Fallback>
+    </Avatar.Root>
+  </button>
   <div class="sendovr" id="sendovr">
     <div class="sendui">
       <div class="grid so2">

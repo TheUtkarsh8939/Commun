@@ -5,8 +5,10 @@
   import { getFirestore, collection, getDocs } from "firebase/firestore";
   import { initializeApp } from "firebase/app";
   import { config } from "./fbaseconfig";
-  import {blur} from "svelte/transition"
+  import { blur } from "svelte/transition";
   import { sineIn } from "svelte/easing";
+  import { getAuth } from "firebase/auth";
+  import { onMount } from "svelte";
   let arrOfData = [];
   const app = initializeApp(config);
   const fs = getFirestore(app);
@@ -15,8 +17,8 @@
     let arrayOfData = [];
     const snapshot = await getDocs(collectionReference);
     snapshot.forEach((doc) => {
-      let data = JSON.parse(JSON.stringify(doc.data()))
-      data.id = doc.id
+      let data = JSON.parse(JSON.stringify(doc.data()));
+      data.id = doc.id;
       arrayOfData.push(data);
     });
     return arrayOfData;
@@ -28,18 +30,24 @@
   let username;
   let cn;
   const cookie = document.cookie;
-  let theme
+  let theme;
+  
 </script>
 
 <svelte:head>
-  <link rel="stylesheet" href="pg.css">
+  <link rel="stylesheet" href="pg.css" />
 </svelte:head>
-<main class="{theme} main" in:blur="{{duration:800, easing:sineIn}}">
-  <Nav bind:theme bind:nameoftheuser={username} bind:coins={cn} bind:batches={badges}/>
+<main class="{theme} main" in:blur={{ duration: 800, easing: sineIn }}>
+  <Nav
+    bind:theme
+    bind:nameoftheuser={username}
+    bind:coins={cn}
+    bind:batches={badges}
+  />
   <div class="svgBadge" style="display:none"></div>
-  <UserMarket {username} bind:badges={badges} bind:coins={cn} />
-    <div class="marketitems">
-      {#each arrOfData as { elem, name, price, id }}
+  <UserMarket {username} bind:badges bind:coins={cn} />
+  <div class="marketitems">
+    {#each arrOfData as { elem, name, price, id }}
       <a href="#/marketplacepage/{id}">
         <Card.Root class="w-[250px] m-5 pt-3" style="--hw:120px">
           <Card.Content>
@@ -52,10 +60,9 @@
             <Card.Description>{price}</Card.Description>
           </Card.Header>
         </Card.Root>
-    </a>
-      {/each}
-    </div>
-  
+      </a>
+    {/each}
+  </div>
 </main>
 
 <style lang="scss">
