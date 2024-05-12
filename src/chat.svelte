@@ -16,7 +16,7 @@
     setDoc,
     getDocs,
   } from "firebase/firestore";
-  import { config } from "./fbaseconfig";
+  import { config, fcmPublicKey } from "./fbaseconfig";
   import {
     getDownloadURL,
     getStorage,
@@ -27,10 +27,11 @@
   import { onMount } from "svelte";
   import NotOpenedAGroup from "$lib/notOpenedAGroup.svelte";
   import * as Avatar from "$lib/components/ui/avatar/index.js";
-  import AiTalk from "./lib/aiTalk.svelte"
- 
+  import AiTalk from "./lib/aiTalk.svelte";
+  import Dialog from "./lib/dialog.svelte";
+  import { getMessaging, getToken } from "firebase/messaging";
   // Declaring Important Variables
-  let theme = "dark"
+  let theme = "dark";
   let istgjn = false;
   let filetext = document.getElementById("filenameupd");
   let updperct = document.querySelector(".pg");
@@ -55,7 +56,22 @@
   let db = getFirestore(app);
   let msgamount: number = 0;
   let toshow = false;
-  let idToken
+  let idToken;
+  let openDialog;
+  const messaging = getMessaging();
+
+  //Function to Request Notfification Permission
+  async function reqNotiPerm() {
+    let Perm: boolean;
+    let permission = await Notification.requestPermission();
+    if (permission == "granted") {
+      Perm = true;
+    } else {
+      Perm = false;
+    }
+    return Perm;
+  }
+
   //Asking for PWA installation
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
@@ -73,6 +89,7 @@
       });
     });
   });
+
   //Funtion to get the logos of the groups
   function getLogo(logo: string, count: number) {
     //Creating a refrence
@@ -91,11 +108,12 @@
         let data = groupSnap.data();
         let count_for_showing_images = 0;
         let newdata = [];
+        let groupsTemp = ``;
         console.log(data);
         for (const key in data) {
           if (data[key].members.includes(splitedCookie[3].split("id=")[1])) {
             newdata.push(data[key]);
-            document.getElementById("sidenav").innerHTML += `
+            groupsTemp += `
             <a class="group" href="#/chat/${data[key].name}">
               <img src="" id="logo${count_for_showing_images}" class="groupicon" alt="" />
             <span class="groupname">${data[key].pname}</span>
@@ -106,6 +124,8 @@
           }
         }
         groups = newdata;
+        document.getElementById("sidenav").innerHTML = groupsTemp;
+        groupsTemp = ``;
       } else {
         alert(
           "Critical Internal Server File Deleted(Internal Server Error)" + 500
@@ -160,7 +180,6 @@
           ${doc.data().msg}
           </div>`;
         } else {
-          console.log(doc.data().msg);
           html += `<div class="msg sentbyme">
           <span class="sender">${doc.data().sender} ${doc.data().batch}<br>
             </span>
@@ -358,7 +377,7 @@
     alert(istgjn);
   }
   //Getting Auth
-  let auth = getAuth()
+  let auth = getAuth();
   //Redirect if user ain't logged in
   onAuthStateChanged(auth, (usr) => {
     if (!usr) {
@@ -366,17 +385,63 @@
     }
   });
   let aiTalkOpen = false;
-  async function setIdToken(){
-   idToken = await auth.currentUser.getIdToken(false)
-   aiTalkOpen = !aiTalkOpen;
+  async function setIdToken() {
+    idToken = await auth.currentUser.getIdToken(false);
+    aiTalkOpen = !aiTalkOpen;
   }
+  onMount(() => {
+    openDialog();
+    reqNotiPerm().then(() => {
+      openDialog();
+      getToken(messaging, { vapidKey: fcmPublicKey })
+        .then(async (token) => {
+          let uId = auth.currentUser.uid
+          let docRef = doc(db,"users",uId)
+          let docSnap = await getDoc(docRef)
+          let tmp = JSON.parse(JSON.stringify(docSnap.data()))
+          if (tmp.Keys === undefined){
+            tmp.Keys = [token]
+          }else{
+            if (!(tmp.Keys.includes(fcmPublicKey))){
+              tmp.Keys.push(fcmPublicKey)
+            }
+          }
+          await setDoc(docRef,tmp)
+        })
+        .catch((err) => {
+          console.error("An error occurred while retrieving token. ", err);
+          // ...
+        });
+    });
+  });
 </script>
 
 <main class="{theme} main">
-  <AiTalk bind:isOpen={aiTalkOpen}/>
-  <button on:click={setIdToken} class="absolute z-10 bottom-[75px] flex items-center justify-center right-4 h-14 w-14 rounded-full" style="box-shadow:var(--ai-btn-shadow)">
+  <Dialog bind:open={openDialog}>
+    <button
+      on:click={openDialog}
+      class="cut2 rotate-45 relative top-2 ml-auto right-4"
+    >
+      <div class="bg-white w-[2px] absolute h-4"></div>
+      <div class="bg-white w-[2px] h-4 rotate-90"></div>
+    </button>
+    <div class="flex flex-col items-center mb-3">
+      <span class="text-[var(--text-color)] font-['Vibur'] text-4xl pt-3"
+        >Hey There! 👋</span
+      >
+      <span class="text-xl font-['Vibur'] text-[var(--text-color)]">
+        We need Notifications to run,<br /> can you give us permission for that
+      </span>
+    </div>
+  </Dialog>
+  <AiTalk bind:isOpen={aiTalkOpen} />
+  <button
+    on:click={setIdToken}
+    class="absolute z-10 bottom-[75px] flex items-center justify-center right-4 h-14 w-14 rounded-full"
+    style="box-shadow:var(--ai-btn-shadow)"
+  >
     <Avatar.Root class="h-14 w-14">
-      <Avatar.Image src="./Ai.png" alt="AI"  />
+      <Avatar.Image src="./Ai.png" alt="AI" />
       <Avatar.Fallback>Ai</Avatar.Fallback>
     </Avatar.Root>
   </button>
@@ -495,7 +560,7 @@
     </div>
   </div>
 
-  <Header bind:theme/>
+  <Header bind:theme />
   <chatwindows style="display: flex;">
     <div class="linkcont" id="linkcont">
       <div class="row" id="r1">
@@ -604,8 +669,14 @@
           <span class="sender">ChatBot <br /></span>Welcome
         </div>
       </div>
-      <div class="msgarea dark:border-none border-l-2 border-t-2 border-gray-500">
-        <input type="text" class="typemsg dark:border-white border-2 border-gray-700" id="msg" />
+      <div
+        class="msgarea dark:border-none border-l-2 border-t-2 border-gray-500"
+      >
+        <input
+          type="text"
+          class="typemsg dark:border-white border-2 border-gray-700"
+          id="msg"
+        />
         <button id="sendmsg" type="button" on:click={sendmsg}
           ><svg
             class="text-black dark:text-white ml-2"

@@ -25,6 +25,8 @@
   interface token {
     token: string;
   }
+  
+ 
   async function addName() {
     if (scode !== "") {
 
@@ -59,6 +61,7 @@
     });
   });
   function signInWithGoogle() {
+    
     signInWithPopup(auth, googleProvider);
   }
   function createCookies(name, pass, batch) {
@@ -71,26 +74,28 @@
     localStorage.setItem("batch", batch);
     window.location.href = "/#/";
   }
-  signOut(auth);
-  onAuthStateChanged(auth, async (user) => {
-    if (user && user.providerData[0].providerId === "google.com") {
-      console.log(user);
-      const docRef = doc(db, "users", user.uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        createCookies(docSnap.data().name, user.uid, docSnap.data().batch);
-      } else {
-        // let name = prompt("One More Question.What is your Name?")
-        setDoc(docRef, {
-          batch: "",
-          name: username,
-          coins: 100,
-          batches: [],
-        });
-        createCookies(username, user.uid, "");
+  
+    onAuthStateChanged(auth, async (user) => {
+      if (user && user.providerData[0].providerId === "google.com") {
+        console.log(user);
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          createCookies(docSnap.data().name, user.uid, docSnap.data().batch);
+        } else {
+          
+          // let name = prompt("One More Question.What is your Name?")
+          setDoc(docRef, {
+            batch: "",
+            name: username,
+            coins: 100,
+            batches: [],
+          });
+          createCookies(username, user.uid, "");
+        }
       }
-    }
-  });
+    });
+  signOut(auth);
   let scode = "";
   let name: Element;
   let sub: Element;

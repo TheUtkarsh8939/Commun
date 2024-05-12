@@ -24,7 +24,7 @@
   }
   $: {
     window.localStorage.setItem("isLight", toStr(isLight))
-    console.log(window.localStorage.getItem("isLight"))
+  
     if (isLight) {
       theme = 'light';
     } else {
@@ -46,8 +46,8 @@
     window.localStorage.setItem("isLight","false")
   }
   isLight = toBool(window.localStorage.getItem("isLight"))
-  console.log(toBool(window.localStorage.getItem("isLight")) + ":" + window.localStorage.getItem("isLight"))
  
+   
   //Function to Join a group
   const hasKey = (obj, key) => Object.keys(obj).includes(key);
   async function join() {
