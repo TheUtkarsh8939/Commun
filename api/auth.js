@@ -3,12 +3,13 @@ import { initializeApp, cert } from "firebase-admin/app";
 import {getAuth} from "firebase-admin/auth"
 import { getFirestore } from "firebase-admin/firestore";
 import "dotenv/config";
+let app = initializeApp({
+  credential: cert(JSON.parse(process.env.FIREBASE_SERVICE)),
+});
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Credentials", true);
   res.setHeader("Access-Control-Allow-Origin", "*");
-  let app = initializeApp({
-    credential: cert(JSON.parse(process.env.FIREBASE_SERVICE)),
-  });
+  
   if (req.headers["x-auth-uid"] === ""|| req.headers["x-auth-uid"] === undefined){
     res.status(400).json({"err":"header not present"})
     return
