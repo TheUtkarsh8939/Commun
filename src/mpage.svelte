@@ -5,6 +5,7 @@
   import { initializeApp } from "firebase/app";
   import { config } from "./fbaseconfig.js";
   import { onMount } from "svelte";
+  import Dialog from "./lib/dialog.svelte";
   export let params;
   interface data {
     name: string;
@@ -18,11 +19,12 @@
   let name;
   let price;
   let svg;
-  let theme
+  let theme;
+  let open;
 
   let currentCoins;
-  const cookie = document.cookie
-  const uId = cookie.split("|")[2].split("id=")[1]
+  const cookie = document.cookie;
+  const uId = cookie.split("|")[2].split("id=")[1];
 
   async function getBadge(fs, params) {
     const documentRef = doc(fs, "badges", params.id);
@@ -38,29 +40,44 @@
       price = data.price;
     });
   });
-  
+
   const purchase = () => {
-    let old = localStorage.getItem("batch")
-    if (old == null){
-      old=""
+    if (userData.coins >= price) {
+      let old = localStorage.getItem("batch");
+      if (old == null) {
+        old = "";
+      }
+      localStorage.setItem("batch", (old += svg));
+      const docRef = doc(fs, "users", uId);
+      let batchArr = userData.batches;
+      let batch = userData.batch;
+      batchArr.push(svg);
+      userData.batches = batchArr;
+      userData.batch = batch += svg;
+      userData.coins -= price;
+      setDoc(docRef, userData);
+    } else {
+      open()
     }
-    localStorage.setItem("batch",old += svg)
-    const docRef = doc(fs, "users", uId)
-    let batchArr = userData.batches
-    let batch = userData.batch
-    batchArr.push(svg)
-    userData.batches = batchArr
-    userData.batch = batch+= svg
-    userData.coins -= price
-    setDoc(docRef,userData)
-  }
+  };
 </script>
 
 <svelte:head>
-  <link rel="stylesheet" href="pg2.css">
+  <link rel="stylesheet" href="pg2.css" />
 </svelte:head>
 <main class="{theme} main">
-  <Nav bind:theme bind:userdata={userData} bind:coins={currentCoins}/>
+  <Dialog bind:open>
+    <button on:click={open} class="cut rotate-45 h-4 relative top-2 ml-auto right-5">
+      <div class="bg-white h-5 w-[2px] absolute"></div>
+      <div class="bg-white h-5 w-[2px] rotate-90"></div>
+    </button>
+    <span class="flex pr-2 pl-2 flex-col items-center text-2xl font-['VIbur'] pb-10 mt-10 text-[var(--text-color)]"
+      ><span class="text-4xl">
+        Oh!
+      </span> It Look like you don't have enough Coins 🪙</span
+    ></Dialog
+  >
+  <Nav bind:theme bind:userdata={userData} bind:coins={currentCoins} />
   <div class="img">
     {@html svg}
   </div>
@@ -82,7 +99,7 @@
     display: flex;
     flex-direction: column;
     margin-top: 20px;
-    gap:30px;
+    gap: 30px;
     color: var(--text-color);
     font-family: "Vibur";
     .name {
@@ -101,5 +118,4 @@
     height: 100vh;
     width: 100vw;
   }
-
 </style>
