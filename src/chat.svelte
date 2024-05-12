@@ -29,7 +29,9 @@
   import * as Avatar from "$lib/components/ui/avatar/index.js";
   import AiTalk from "./lib/aiTalk.svelte";
   import Dialog from "./lib/dialog.svelte";
-  import { getMessaging, getToken,onMessage } from "firebase/messaging";
+  import { getMessaging, getToken, onMessage } from "firebase/messaging";
+
+ 
   // Declaring Important Variables
   let theme = "dark";
   let istgjn = false;
@@ -279,6 +281,12 @@
       document.getElementById("msg").value = "";
     }
   }
+  //TEST: Listening to notifications
+
+  onMessage(messaging, (payload) => {
+    console.log("Message received. :" + payload);
+    // ...
+  });
   //Function to Open The area of send options
   function openLink() {
     if (linkopen === "false") {
@@ -396,8 +404,8 @@
       openDialog();
       getToken(messaging, { vapidKey: fcmPublicKey })
         .then(async (token) => {
-          console.log(token)
-          
+          console.log(token);
+
           let docRef = doc(db, "users", id);
           let docSnap = await getDoc(docRef);
           let tmp = JSON.parse(JSON.stringify(docSnap.data()));
@@ -416,11 +424,8 @@
         });
     });
   });
-  //TEST: Listening to notifications
-  onMessage(messaging, (payload) => {
-    alert("Message received. :"+payload);
-    // ...
-  });
+ 
+  
 </script>
 
 <main class="{theme} main">
