@@ -29,7 +29,7 @@
   import * as Avatar from "$lib/components/ui/avatar/index.js";
   import AiTalk from "./lib/aiTalk.svelte";
   import Dialog from "./lib/dialog.svelte";
-  import { getMessaging, getToken } from "firebase/messaging";
+  import { getMessaging, getToken,onMessage } from "firebase/messaging";
   // Declaring Important Variables
   let theme = "dark";
   let istgjn = false;
@@ -389,30 +389,37 @@
     idToken = await auth.currentUser.getIdToken(false);
     aiTalkOpen = !aiTalkOpen;
   }
+  //Requesting Notification Permission and sending Notification token to server
   onMount(() => {
     openDialog();
     reqNotiPerm().then(() => {
       openDialog();
       getToken(messaging, { vapidKey: fcmPublicKey })
         .then(async (token) => {
-          let uId = auth.currentUser.uid
-          let docRef = doc(db,"users",uId)
-          let docSnap = await getDoc(docRef)
-          let tmp = JSON.parse(JSON.stringify(docSnap.data()))
-          if (tmp.Keys === undefined){
-            tmp.Keys = [token]
-          }else{
-            if (!(tmp.Keys.includes(fcmPublicKey))){
-              tmp.Keys.push(fcmPublicKey)
+          console.log(token)
+          
+          let docRef = doc(db, "users", id);
+          let docSnap = await getDoc(docRef);
+          let tmp = JSON.parse(JSON.stringify(docSnap.data()));
+          if (tmp.Keys === undefined) {
+            tmp.Keys = [token];
+          } else {
+            if (!tmp.Keys.includes(token)) {
+              tmp.Keys.push(token);
             }
           }
-          await setDoc(docRef,tmp)
+          await setDoc(docRef, tmp);
         })
         .catch((err) => {
           console.error("An error occurred while retrieving token. ", err);
           // ...
         });
     });
+  });
+  //TEST: Listening to notifications
+  onMessage(messaging, (payload) => {
+    alert("Message received. :"+payload);
+    // ...
   });
 </script>
 

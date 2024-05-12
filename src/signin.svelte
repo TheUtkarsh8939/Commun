@@ -25,8 +25,7 @@
     const auth = getAuth();
     const res = await fetch("./api/auth", {
       headers: {
-        "x-auth-uid": id,
-        "Access-Control-Allow-Origin": "*",
+        "x-auth-uid": id
       },
     });
     if (!res.ok) {
