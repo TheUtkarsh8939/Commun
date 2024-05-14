@@ -57,7 +57,8 @@
     if (docSnap.exists()) {
       if (hasKey(docSnap.data(), gname)) {
         let mem = docSnap.data()[gname].members;
-        mem.push(splitedCookie[3].split("id=")[1]);
+        const uid = splitedCookie[3].split("id=")[1]
+        if (!mem.includes(uid)) {mem.push(uid);}else{console.log("Already in group")}
         temp = docSnap.data();
         Object.assign(temp[gname].members, mem);
         await setDoc(refofmetadata, temp).then(() => {

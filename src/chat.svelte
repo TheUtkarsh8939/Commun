@@ -31,7 +31,6 @@
   import Dialog from "./lib/dialog.svelte";
   import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
- 
   // Declaring Important Variables
   let theme = "dark";
   let istgjn = false;
@@ -44,7 +43,7 @@
   let issendcontopen = true;
   let sendcont = "Images";
   let linkopen = "false";
-  let groups;
+  let groups = [];
   let msg = [];
   let cookietosplit = `|${document.cookie}`;
   let splitedCookie = cookietosplit.split("|");
@@ -60,8 +59,8 @@
   let toshow = false;
   let idToken;
   let openDialog;
-  const messaging = getMessaging();
-
+  const messaging = getMessaging(app);
+  let countForShowingImages = 0;
   //Function to Request Notfification Permission
   async function reqNotiPerm() {
     let Perm: boolean;
@@ -100,6 +99,7 @@
       const img = document.getElementById(`logo${count}`);
       img.setAttribute("src", url);
     });
+    return "";
   }
 
   //Function to Retrieve All the Groups from the database
@@ -107,27 +107,9 @@
     let groupRef = doc(db, "metadata", "groups");
     onSnapshot(groupRef, async (groupSnap) => {
       if (groupSnap.exists()) {
-        let data = groupSnap.data();
-        let count_for_showing_images = 0;
-        let newdata = [];
-        let groupsTemp = ``;
+        const data = Object.entries(groupSnap.data());
         console.log(data);
-        for (const key in data) {
-          if (data[key].members.includes(splitedCookie[3].split("id=")[1])) {
-            newdata.push(data[key]);
-            groupsTemp += `
-            <a class="group" href="#/chat/${data[key].name}">
-              <img src="" id="logo${count_for_showing_images}" class="groupicon" alt="" />
-            <span class="groupname">${data[key].pname}</span>
-            </a>
-            `;
-            getLogo(data[key].logo, count_for_showing_images);
-            count_for_showing_images++;
-          }
-        }
-        groups = newdata;
-        document.getElementById("sidenav").innerHTML = groupsTemp;
-        groupsTemp = ``;
+        groups = data;
       } else {
         alert(
           "Critical Internal Server File Deleted(Internal Server Error)" + 500
@@ -200,45 +182,42 @@
     });
   }
   //Adding logic to open button and Change group
-  if (params != undefined) {
-    let oldGroup = params.group;
-    setInterval(() => {
-      if (params.group != oldGroup) {
-        msg = [];
-        let colRef = collection(db, params.group);
-        onSnapshot(colRef, (snap) => {
-          let x = snap.docs.reverse();
-          x.forEach((doc) => {
-            if (id != doc.data().uid) {
-              html += `<div class="msg">
+  let changeGroup = (group: string) => {
+    return () => {
+    msg = [];
+    let colRef = collection(db, group);
+    onSnapshot(colRef, (snap) => {
+      let x = snap.docs.reverse();
+      x.forEach((doc) => {
+        if (id != doc.data().uid) {
+          html += `<div class="msg">
                     <span class="sender">${doc.data().sender} ${
                       doc.data().batch
                     }<br></span>
                 ${doc.data().msg}
                 </div>`;
-            } else {
-              html += `<div class="msg sentbyme">
+        } else {
+          html += `<div class="msg sentbyme">
                   <span class="sender">${doc.data().sender} ${
                     doc.data().batch
                   }<br></span>
                   ${doc.data().msg}
                   </div>`;
-            }
-            msg.push({ ...doc.data(), id: doc.id });
-          });
-          msgamount = msg.length;
-          document.getElementById("seamsg").innerHTML = html;
-          html = "";
+        }
+        msg.push({ ...doc.data(), id: doc.id });
+      });
+      msgamount = msg.length;
+      document.getElementById("seamsg").innerHTML = html;
+      html = "";
 
-          msg = [];
-          var elem = document.getElementById("seamsg");
-          elem.scrollTo(0, elem.scrollHeight);
-        });
-      }
-      disableWriting(params.group);
-      oldGroup = params.group;
-    }, 100);
+      msg = [];
+      var elem = document.getElementById("seamsg");
+      elem.scrollTo(0, elem.scrollHeight);
+    });
+
+    disableWriting(group);
   }
+  };
   setInterval(() => {
     if (isOpen != oldIsOpen) {
       if (isOpen) {
@@ -284,7 +263,8 @@
   //TEST: Listening to notifications
 
   onMessage(messaging, (payload) => {
-    console.log("Message received. :" + payload);
+    alert("Message received. :" + payload);
+    console.log("Msg Recieved: ", payload);
     // ...
   });
   //Function to Open The area of send options
@@ -396,6 +376,7 @@
   async function setIdToken() {
     idToken = await auth.currentUser.getIdToken(false);
     aiTalkOpen = !aiTalkOpen;
+    console.log(idToken);
   }
   //Requesting Notification Permission and sending Notification token to server
   onMount(() => {
@@ -424,8 +405,6 @@
         });
     });
   });
- 
-  
 </script>
 
 <main class="{theme} main">
@@ -446,7 +425,7 @@
       </span>
     </div>
   </Dialog>
-  <AiTalk bind:isOpen={aiTalkOpen} />
+  <AiTalk bind:isOpen={aiTalkOpen} bind:auth bind:token={idToken}/>
   <button
     on:click={setIdToken}
     class="absolute z-10 bottom-[75px] flex items-center justify-center right-4 h-14 w-14 rounded-full"
@@ -673,7 +652,17 @@
     </div>
     <!-- Side Grouping Menu -->
     <ExtendButton bind:isOpen />
-    <div id="sidenav" class="sidenav h-[calc(100vh-110px)] bg-slate-950"></div>
+    <div id="sidenav" class="sidenav h-[calc(100vh-110px)] bg-slate-950">
+      {#each groups as group, index}
+        <button type="button" on:click={changeGroup(group[1].name)} class="w-[100%]">
+          <a class="group" href="#/chat/{group[1].name}">
+            <img src="" id="logo{index}" class="groupicon" alt="" />
+            <span class="groupname">{group[1].pname}</span>
+            {getLogo(group[1].logo, index)}
+          </a>
+        </button>
+      {/each}
+    </div>
     <div class="areaformsg" id="areaformsg">
       <div class="seamsg" id="seamsg">
         <NotOpenedAGroup />

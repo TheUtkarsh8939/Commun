@@ -1,16 +1,68 @@
-<script>
+<script lang="ts">
   import { fly } from "svelte/transition";
+  import SvelteMarkdown from "svelte-markdown";
+  import {Skeleton} from "$lib/components/ui/skeleton";
   export let isOpen = false;
-  let close = _ => {isOpen = !isOpen}
+  export let token: string;
+  export let auth;
+  let prompt = "";
+  let talks = [];
+  let isTalked = false;
+  let close = (_) => {
+    isOpen = !isOpen;
+  };
+  let elem;
+  let doThings = async (isOpen) => {
+    console.log("Token:  " + token);
+    if (isOpen) {
+      const res = await fetch("./api/message", {
+        headers: {
+          "x-auth": token,
+        },
+      });
+      if (!res.ok) {
+        if (res.status == 401) {
+          token = auth.currentUser.getIdToken();
+          doThings(isOpen);
+        } else {
+          return;
+        }
+      } else {
+        if (!(res.status == 269)) {
+          isTalked = true;
+          talks = await res.json();
+          elem.scrollTo(0, elem.scrollHeight);
+        }
+      }
+    }
+  };
+  $: doThings(isOpen);
+  let send = async () => {
+    talks.push({time:Date.now(),prompt:prompt,model:{pending:true}});
+    prompt = ""
+    let res = await fetch("./api/message", {
+      method: "POST",
+      headers: {
+        "x-auth": token,
+        "x-prompt": prompt,
+      },
+    });
+    if (!res.ok) {
+      if (res.status == 401) {
+        token = auth.currentUser.getIdToken();
+        send();
+      }
+    }else{
+      let json = await res.json()
+      talks[talks.length - 1].model = json.model
+    }
+  };
 </script>
 
 {#if isOpen}
-  <div
-  
-    class="cont h-screen w-screen absolute flex items-center justify-center"
-  >
+  <div class="cont h-screen w-screen absolute flex items-center justify-center">
     <div
-    transition:fly="{{duration:1200,x:1000,y:800}}"
+      transition:fly={{ duration: 1200, x: 1000, y: 800 }}
       class="talk rounded-3xl absolute bottom-[120px] h-[80vh] w-[clamp(250px,80vw,400px)] bg-black z-20"
       style="box-shadow:var(--pwd-box-shadow)"
     >
@@ -66,20 +118,113 @@
             </linearGradient>
           </defs>
         </svg>
-        <button on:click={close} class= "cut cursor-pointer rotate-45 absolute top-[5px] right-[20px]">
-            <div class="rod bg-white rounded-sm h-[17px] w-[2px] absolute"></div>
-            <div class="rod bg-white rounded-sm h-[17px] w-[2px] rotate-90"></div>
+        <button
+          on:click={close}
+          class="cut cursor-pointer rotate-45 absolute top-[5px] right-[20px]"
+        >
+          <div class="rod bg-white rounded-sm h-[17px] w-[2px] absolute"></div>
+          <div class="rod bg-white rounded-sm h-[17px] w-[2px] rotate-90"></div>
         </button>
       </div>
       <div
-        class="talks h-[80%] font-['Vibur'] flex items-center justify-center text-5xl text-[var(--text-color)]"
+        class="talks h-[82%] pt-12 font-['Vibur'] flex text-5xl flex-col text-[var(--text-color)]"
       >
-        Work In Progress
+        {#if !isTalked}
+          <div class="yhcy h-[100%] w-[100%] text-3xl grid place-items-center">
+            Send your first message
+          </div>
+
+        {:else}
+          <div
+            bind:this={elem}
+            class="talks2 overflow-y-scroll h-[100%] w-[100%]"
+          >
+            {#each talks as talk}
+              <div class="msg sentbyme font-sans mb-3">
+                <span class="sender">User</span>{talk.prompt}
+              </div>
+              <div class="msg font-sans">
+                <span class="sender mb-3">Sparshak Ai</span>
+                {#if talk.model.pending == undefined}
+                  <SvelteMarkdown source={talk.model} />
+                {:else}
+                <div class="wrapper flex flex-col gap-2">
+                  <span class="sender">Sparshak Ai</span>
+                  <Skeleton class="h-4 ml-2 w-[90%]" style="background-color:rgba(0,0,0,0.19)"/>
+                  <Skeleton class="h-4 ml-2 w-[90%]" style="background-color:rgba(0,0,0,0.19)"/>
+                  <Skeleton class="h-4 ml-2 w-[90%]" style="background-color:rgba(0,0,0,0.19)"/>
+                 </div>
+                {/if}
+              </div>
+            {/each}
+          </div>
+        {/if}
       </div>
-      <div class="scroll"></div>
+      <div
+        class="type w-[100%] text-white bg-gray-950 mb-0 flex items-center justify-evenly"
+      >
+        <input
+          type="text"
+          class="h-[clamp(30px,75%,50px)] w-72 rounded-2xl dark:border-fuchsia-400 border-fuchsia-500 border-x-2 border-y-2 bg-black"
+          bind:value={prompt}
+        />
+        <button type="button" on:click={send}>
+          <svg
+            class=" text-emerald-500 dark:border-emerald-300 ml-2"
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            fill="currentColor"
+            height="25px"
+            width="25px"
+            version="1.1"
+            id="Layer_1"
+            viewBox="0 0 491.022 491.022"
+            xml:space="preserve"
+          >
+            <g>
+              <g>
+                <path
+                  d="M490.916,13.991c-0.213-1.173-0.64-2.347-1.28-3.307c-0.107-0.213-0.213-0.533-0.32-0.747    c-0.107-0.213-0.32-0.32-0.533-0.533c-0.427-0.533-0.96-1.067-1.493-1.493c-0.427-0.32-0.853-0.64-1.28-0.96    c-0.213-0.107-0.32-0.32-0.533-0.427c-0.32-0.107-0.747-0.32-1.173-0.427c-0.533-0.213-1.067-0.427-1.6-0.533    c-0.64-0.107-1.28-0.213-1.92-0.213c-0.533,0-1.067,0-1.6,0c-0.747,0.107-1.493,0.32-2.133,0.533    c-0.32,0.107-0.747,0.107-1.067,0.213L6.436,209.085c-5.44,2.347-7.893,8.64-5.547,14.08c1.067,2.347,2.88,4.373,5.227,5.44    l175.36,82.453v163.947c0,5.867,4.8,10.667,10.667,10.667c3.733,0,7.147-1.92,9.067-5.12l74.133-120.533l114.56,60.373    c5.227,2.773,11.627,0.747,14.4-4.48c0.427-0.853,0.747-1.813,0.96-2.667l85.547-394.987c0-0.213,0-0.427,0-0.64    c0.107-0.64,0.107-1.173,0.213-1.707C491.022,15.271,491.022,14.631,490.916,13.991z M190.009,291.324L36.836,219.218    L433.209,48.124L190.009,291.324z M202.809,437.138V321.831l53.653,28.267L202.809,437.138z M387.449,394.898l-100.8-53.013    l-18.133-11.2l-0.747,1.28l-57.707-30.4L462.116,49.298L387.449,394.898z"
+                />
+              </g>
+            </g>
+          </svg>
+        </button>
+      </div>
     </div>
   </div>
 {/if}
 
 <style>
+  .talks2::-webkit-scrollbar {
+    width: 3px;
+  }
+
+  /* Track */
+  .talks2::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  /* Handle */
+  .talks2::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+      transparent,
+      mediumslateblue,
+      mediumslateblue,
+      mediumslateblue,
+      transparent
+    );
+  }
+
+  /* Handle on hover */
+  .talks2::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(transparent, mediumslateblue, transparent);
+  }
+  .sender {
+    font-size: 18.5px !important;
+  }
+  .type {
+    height: 11%;
+    border-radius: 0px 0px 30px 30px;
+  }
 </style>
