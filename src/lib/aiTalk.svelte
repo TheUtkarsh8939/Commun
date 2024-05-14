@@ -14,7 +14,7 @@
   let elem;
   let doThings = async (isOpen) => {
     console.log("Token:  " + token);
-    if (isOpen) {
+    if (isOpen && token != undefined) {
       const res = await fetch("./api/message", {
         headers: {
           "x-auth": token,
@@ -39,7 +39,7 @@
   $: doThings(isOpen);
   let send = async () => {
     talks.push({time:Date.now(),prompt:prompt,model:{pending:true}});
-    prompt = ""
+    console.table(talks)
     let res = await fetch("./api/message", {
       method: "POST",
       headers: {
@@ -50,13 +50,14 @@
     if (!res.ok) {
       if (res.status == 401) {
         token = auth.currentUser.getIdToken();
-        send();
+        send()
       }
     }else{
       let json = await res.json()
       talks[talks.length - 1].model = json.model
     }
-  };
+    prompt = ""
+  }
 </script>
 
 {#if isOpen}
@@ -165,7 +166,7 @@
       >
         <input
           type="text"
-          class="h-[clamp(30px,75%,50px)] w-72 rounded-2xl dark:border-fuchsia-400 border-fuchsia-500 border-x-2 border-y-2 bg-black"
+          class="h-[clamp(30px,75%,50px)] p-3 w-72 rounded-2xl dark:border-fuchsia-400 border-fuchsia-500 border-x-2 border-y-2 bg-black"
           bind:value={prompt}
         />
         <button type="button" on:click={send}>
@@ -224,6 +225,7 @@
     font-size: 18.5px !important;
   }
   .type {
+    padding:0px 10px 0px 10px;
     height: 11%;
     border-radius: 0px 0px 30px 30px;
   }
