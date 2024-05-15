@@ -94,7 +94,9 @@ export default async (req, res) => {
           'user': req.headers["x-prompt"],
           'model': text
         }
-       colRef.add(data)
+       colRef.add(data).then(full => {
+        console.log(full)
+       })
         res.status(200).json(data);
       })
       .catch((error) => {

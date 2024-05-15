@@ -382,3 +382,8 @@ body::-webkit-scrollbar-thumb:hover {
   color: white;
   font-size: 25px;
 }
+code{
+  display: flex;
+  flex-wrap: wrap;
+  text-wrap: wrap;
+}

@@ -376,7 +376,6 @@
   async function setIdToken() {
     idToken = await auth.currentUser.getIdToken(false);
     aiTalkOpen = !aiTalkOpen;
-    console.log(idToken);
   }
   //Requesting Notification Permission and sending Notification token to server
   onMount(() => {

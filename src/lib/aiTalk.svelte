@@ -1,19 +1,26 @@
 <script lang="ts">
   import { fly } from "svelte/transition";
   import SvelteMarkdown from "svelte-markdown";
-  import {Skeleton} from "$lib/components/ui/skeleton";
+  import { Skeleton } from "$lib/components/ui/skeleton";
   export let isOpen = false;
   export let token: string;
   export let auth;
+  let loaded = false;
   let prompt = "";
   let talks = [];
   let isTalked = false;
   let close = (_) => {
     isOpen = !isOpen;
   };
-  let elem;
+  let elem: Element;
+  let scroll = (elem: Element) => {
+    if (elem != undefined) {
+      elem.scrollTo(0, elem.scrollHeight);
+    }
+  };
+  $: scroll(elem);
+
   let doThings = async (isOpen) => {
-    console.log("Token:  " + token);
     if (isOpen && token != undefined) {
       const res = await fetch("./api/message", {
         headers: {
@@ -28,36 +35,40 @@
           return;
         }
       } else {
-        if (!(res.status == 269)) {
+        if (res.status != 269) {
+          loaded = true;
           isTalked = true;
           talks = await res.json();
-          elem.scrollTo(0, elem.scrollHeight);
         }
       }
     }
   };
   $: doThings(isOpen);
   let send = async () => {
-    talks.push({time:Date.now(),prompt:prompt,model:{pending:true}});
-    console.table(talks)
-    let res = await fetch("./api/message", {
+    isTalked = true;
+    talks.push({ time: Date.now(), prompt: prompt, model: { pending: true } });
+    talks[talks.length - 1].model = {pending: true, data:""};
+    console.log(talks);
+    const tempPrompt = prompt;
+    prompt = "";
+    fetch("./api/message", {
       method: "POST",
       headers: {
         "x-auth": token,
-        "x-prompt": prompt,
+        "x-prompt": tempPrompt,
       },
-    });
-    if (!res.ok) {
-      if (res.status == 401) {
-        token = auth.currentUser.getIdToken();
-        send()
+    }).then(async (res) => {
+      if (!res.ok) {
+        if (res.status == 401) {
+          token = auth.currentUser.getIdToken();
+          send();
+        }
+      } else {
+        let json = await res.json();
+        talks[talks.length - 1].model = json.model;
       }
-    }else{
-      let json = await res.json()
-      talks[talks.length - 1].model = json.model
-    }
-    prompt = ""
-  }
+    });
+  };
 </script>
 
 {#if isOpen}
@@ -130,12 +141,7 @@
       <div
         class="talks h-[82%] pt-12 font-['Vibur'] flex text-5xl flex-col text-[var(--text-color)]"
       >
-        {#if !isTalked}
-          <div class="yhcy h-[100%] w-[100%] text-3xl grid place-items-center">
-            Send your first message
-          </div>
-
-        {:else}
+        {#if isTalked && loaded}
           <div
             bind:this={elem}
             class="talks2 overflow-y-scroll h-[100%] w-[100%]"
@@ -146,18 +152,36 @@
               </div>
               <div class="msg font-sans">
                 <span class="sender mb-3">Sparshak Ai</span>
-                {#if talk.model.pending == undefined}
-                  <SvelteMarkdown source={talk.model} />
+                {#if talk.model.pending != undefined && talk.model.pending == true}
+                  <div class="wrapper flex flex-col gap-2">
+                    
+                    <Skeleton
+                      class="h-4 ml-2 w-[90%]"
+                      style="background-color:rgba(0,0,0,0.19)"
+                    />
+                    <Skeleton
+                      class="h-4 ml-2 w-[90%]"
+                      style="background-color:rgba(0,0,0,0.19)"
+                    />
+                    <Skeleton
+                      class="h-4 ml-2 w-[90%]"
+                      style="background-color:rgba(0,0,0,0.19)"
+                    />
+                  </div>
                 {:else}
-                <div class="wrapper flex flex-col gap-2">
-                  <span class="sender">Sparshak Ai</span>
-                  <Skeleton class="h-4 ml-2 w-[90%]" style="background-color:rgba(0,0,0,0.19)"/>
-                  <Skeleton class="h-4 ml-2 w-[90%]" style="background-color:rgba(0,0,0,0.19)"/>
-                  <Skeleton class="h-4 ml-2 w-[90%]" style="background-color:rgba(0,0,0,0.19)"/>
-                 </div>
+                  <SvelteMarkdown source={talk.model} />
                 {/if}
               </div>
             {/each}
+          </div>
+        {:else if !loaded && !isTalked}
+          <div class="h-[100%] gap-3 w-[100%] text-3xl grid place-items-center">
+            <img src="./load.gif" alt="Loading" />
+            Loading
+          </div>
+        {:else}
+          <div class="yhcy h-[100%] w-[100%] text-3xl grid place-items-center">
+            Send your first message
           </div>
         {/if}
       </div>
@@ -225,8 +249,9 @@
     font-size: 18.5px !important;
   }
   .type {
-    padding:0px 10px 0px 10px;
+    padding: 0px 10px 0px 10px;
     height: 11%;
     border-radius: 0px 0px 30px 30px;
   }
+  
 </style>
