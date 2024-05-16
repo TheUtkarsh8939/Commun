@@ -75,11 +75,11 @@
   <div class="cont h-screen w-screen absolute flex items-center justify-center">
     <div
       transition:fly={{ duration: 1200, x: 1000, y: 800 }}
-      class="talk rounded-3xl absolute bottom-[120px] h-[80vh] w-[clamp(250px,80vw,400px)] bg-black z-20"
+      class="talk rounded-3xl absolute bottom-[120px] h-[80vh] w-[clamp(250px,80vw,400px)]  z-20"
       style="box-shadow:var(--pwd-box-shadow)"
     >
       <div
-        class="brand w-[100%] p-0 m-0 flex h-[7%] items-center justify-center text-4xl text-[var(--text-color)] font-['Vibur']"
+        class="brand w-[100%] p-0 m-0 flex h-[9%] items-center justify-center text-4xl text-[var(--text-color)] font-['Vibur']"
       >
         <span class="relative top-3">Powered By</span>
         <svg
@@ -139,7 +139,7 @@
         </button>
       </div>
       <div
-        class="talks h-[82%] pt-12 font-['Vibur'] flex text-5xl flex-col text-[var(--text-color)]"
+        class="talks h-[80%] font-['Vibur'] flex text-5xl flex-col text-[var(--text-color)]"
       >
         {#if isTalked && loaded}
           <div
@@ -186,11 +186,11 @@
         {/if}
       </div>
       <div
-        class="type w-[100%] text-white bg-gray-950 mb-0 flex items-center justify-evenly"
+        class="type w-[100%] text-white mb-0 flex items-center justify-evenly"
       >
         <input
           type="text"
-          class="h-[clamp(30px,75%,50px)] p-3 w-72 rounded-2xl dark:border-fuchsia-400 border-fuchsia-500 border-x-2 border-y-2 bg-black"
+          class="h-[clamp(30px,75%,50px)] p-3 w-72 rounded-2xl dark:border-fuchsia-400 border-fuchsia-500 border-x-2 border-y-2 bg-white dark:bg-black text-[var(--text-color)]"
           bind:value={prompt}
         />
         <button type="button" on:click={send}>
@@ -253,5 +253,17 @@
     height: 11%;
     border-radius: 0px 0px 30px 30px;
   }
-  
+  .brand{
+    background-color: var(--ai-brand-color);
+    border-radius: 26px 26px 0px 0px;
+  }
+  .talk{
+    border:2px solid var(--ai-talk-border);
+  }
+  .talks{
+    background-color: var(--ai-talk-color);
+  }
+  .type{
+    background-color: var(--ai-type-color);
+  }
 </style>
