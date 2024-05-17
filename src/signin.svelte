@@ -16,7 +16,9 @@
     document.cookie += `|name=${name}`;
     document.cookie += `|id=${pass}`;
     document.cookie += `|${batch}`;
+    document.cookie += `;max-age=34560000`
 
+    
     localStorage.setItem("batch", batch);
     window.location.href = "/#/";
   }
