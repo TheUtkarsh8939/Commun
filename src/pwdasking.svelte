@@ -150,7 +150,7 @@
 <style lang="scss">
   @import url("https://fonts.googleapis.com/css2?family=Agbalumo&family=Vibur&display=swap");
   .dhaa{
-    font-size:clamp(15px,5vw,25px);
+    font-size:clamp(15px,5vw,20px);
     a{
       color:aqua;
     }
@@ -179,7 +179,7 @@
     align-items: center;
     font-family: "Vibur", sans-serif;
     .subbtn{
-      margin-top: 60%;
+      margin-top: 25%;
       width:100px !important;
       display: flex !important;
       justify-content: center !important;
@@ -202,7 +202,7 @@
       width: 85%;
       height: 75%;
       align-items: center;
-      padding-top: 24%;
+      
     }
     .logwithg {
       display: flex;
