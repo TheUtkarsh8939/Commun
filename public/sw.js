@@ -1,26 +1,2 @@
-importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.4.1/workbox-sw.js');
-
-workbox.routing.registerRoute(
-  // Match HTML, CSS, JavaScript, images, and videos
-  ({ url }) => url.pathname.match(/^(.*)\.(html|css|js|png|jpg|gif|svg|mp4|webm|ogg)$/i),
-  new workbox.strategies.NetworkFirst({
-    cacheName: 'network-first-cache',
-  })
-);
-
-
-// Precache app resources
-workbox.precaching.precacheAndRoute([
-  // List of resources to precache
-  { url: '/', revision: '1' },
-  { url: '/index.html', revision: '1' },
-  { url: '/Ai.png', revision: '1' },
-  { url: '/friendship.jpg', revision: '1' },
-  { url: '/google.svg', revision: '1' },
-  { url: '/load.gif', revision: '1' },
-  { url: '/logo.png', revision: '1' },
-  { url: '/offline.html', revision: '1' },
-  { url: '/pg.css', revision: '1' },
-  { url: '/pg2.css', revision: '1' }
-
-]);
+if(!self.define){let e,s={};const c=(c,i)=>(c=new URL(c+".js",i).href,s[c]||new Promise((s=>{if("document"in self){const e=document.createElement("script");e.src=c,e.onload=s,document.head.appendChild(e)}else e=c,importScripts(c),s()})).then((()=>{let e=s[c];if(!e)throw new Error(`Module ${c} didn’t register its module`);return e})));self.define=(i,n)=>{const r=e||("document"in self?document.currentScript.src:"")||location.href;if(s[r])return;let t={};const o=e=>c(e,r),d={module:{uri:r},exports:t,require:o};s[r]=Promise.all(i.map((e=>d[e]||o(e)))).then((e=>(n(...e),t)))}}define(["./workbox-13c0e120"],(function(e){"use strict";self.addEventListener("message",(e=>{e.data&&"SKIP_WAITING"===e.data.type&&self.skipWaiting()})),e.precacheAndRoute([{url:"ads.html",revision:"d41d8cd98f00b204e9800998ecf8427e"},{url:"assets/index-0a57f4bc.css",revision:"0f3b0981aabe5e3b65f3a94d191b7d5f"},{url:"assets/index-28e23575.js",revision:"f6c56cdc6c2792e0e23fac28fd1f8fa5"},{url:"firebase-messaging-sw.js",revision:"2172d483c4c33dbeb52f7fd7c9db207b"},{url:"index.html",revision:"7cd0ba5cac824301176e34d253ec92c6"},{url:"offline.html",revision:"e79c2bbf494cce0730e02652fc1a6358"},{url:"pg.css",revision:"5124bdf2e3888cf788371247cd06d43d"},{url:"pg2.css",revision:"99052b1d2a0069bd0549a172ab4a845d"},{url:"sw.js",revision:"9ef0054059f97b9bed49168bc91f8e47"}],{}),e.cleanupOutdatedCaches(),e.registerRoute((({request:e})=>"document"===e.destination),new e.NetworkFirst({cacheName:"html-cache",networkTimeoutSeconds:10,plugins:[new e.ExpirationPlugin({maxEntries:50,maxAgeSeconds:86400})]}),"GET"),e.registerRoute((({request:e})=>"script"===e.destination||"style"===e.destination),new e.NetworkFirst({cacheName:"asset-cache",networkTimeoutSeconds:10,plugins:[new e.ExpirationPlugin({maxEntries:50,maxAgeSeconds:86400})]}),"GET"),e.registerRoute((({request:e})=>"image"===e.destination),new e.CacheFirst({cacheName:"image-cache",plugins:[new e.ExpirationPlugin({maxEntries:50,maxAgeSeconds:2592e3})]}),"GET")}));
+//# sourceMappingURL=service-worker.js.map
