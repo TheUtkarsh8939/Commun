@@ -351,33 +351,7 @@
     idToken = await auth.currentUser.getIdToken(false);
     aiTalkOpen = !aiTalkOpen;
   }
-  //Requesting Notification Permission and sending Notification token to server
-  onMount(() => {
-    openDialog();
-    reqNotiPerm().then(() => {
-      openDialog();
-      getToken(messaging, { vapidKey: fcmPublicKey })
-        .then(async (token) => {
-          console.log(token);
 
-          let docRef = doc(db, "users", id);
-          let docSnap = await getDoc(docRef);
-          let tmp = JSON.parse(JSON.stringify(docSnap.data()));
-          if (tmp.Keys === undefined) {
-            tmp.Keys = [token];
-          } else {
-            if (!tmp.Keys.includes(token)) {
-              tmp.Keys.push(token);
-            }
-          }
-          await setDoc(docRef, tmp);
-        })
-        .catch((err) => {
-          console.error("An error occurred while retrieving token. ", err);
-          // ...
-        });
-    });
-  });
 </script>
 
 <main class="{theme} main">
