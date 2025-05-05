@@ -40,23 +40,7 @@
     }
   }
   //Asking for PWA installation
-  window.addEventListener("beforeinstallprompt", (e) => {
-    e.preventDefault();
-    let deferredPrompt = e;
-    document.getElementById("askcont").style.display = "flex";
-    // @ts-ignore
-    document.getElementById("asktoinstall").addEventListener("click", (ce) => {
-      // @ts-ignore
-      deferredPrompt.prompt();
-      // @ts-ignore
-      deferredPrompt.userChoice.then((choice) => {
-        if (choice.outcome === "accepted") {
-        }
-        deferredPrompt = null;
-        document.getElementById("askcont").style.display = "none";
-      });
-    });
-  });
+  
   function signInWithGoogle() {
     signInWithPopup(auth, googleProvider);
   }
