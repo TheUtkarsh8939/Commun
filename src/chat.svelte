@@ -74,33 +74,7 @@
   }
 
   //Asking for PWA installation
-  window.addEventListener("beforeinstallprompt", (e) => {
-    e.preventDefault();
-    let deferredPrompt = e;
-    document.getElementById("askcont").style.display = "flex";
-    document.getElementById("asktoinstall").addEventListener("click", (ce) => {
-      // @ts-ignore
-      deferredPrompt.prompt();
-      // @ts-ignore
-      deferredPrompt.userChoice.then((choice) => {
-        if (choice.outcome === "accepted") {
-        }
-        deferredPrompt = null;
-        document.getElementById("askcont").style.display = "none";
-      });
-    });
-  });
-
-  //Funtion to get the logos of the groups
-  function getLogo(logo: string, count: number) {
-    //Creating a refrence
-    const pathRefrence = ref(storage, "logos/" + logo);
-    getDownloadURL(pathRefrence).then((url) => {
-      const img = document.getElementById(`logo${count}`);
-      img.setAttribute("src", url);
-    });
-    return "";
-  }
+  
 
   //Function to Retrieve All the Groups from the database
   async function findGroups() {
